@@ -2,10 +2,8 @@ package br.edu.ufcg.analytics.infoamazonia;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 
 @Entity
 public class Alert implements Serializable {
@@ -13,116 +11,125 @@ public class Alert implements Serializable {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-	
-	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	private static final long serialVersionUID = 6750021246745651633L;
 
-	private String stationName;
-	private Long stationID;
-	private Long timestamp;
-	private Long current;
+	@EmbeddedId
+	private AlertPk id;
 
 	@Column(nullable=true)
-	private Long calculated;
+	private Long measured;
+
+	@Column(nullable=true)
+	private Long predicted;
 	
 	@Column(nullable=true)
-	private Long prediction;
+	private Long corrected;
+	
 	@Column(nullable=true)
-	private String status;
+	private String measuredStatus;
+	
+	@Column(nullable=true)
+	private String predictedStatus;
 	
 	public Alert() {
 		// TODO Auto-generated constructor stub
 	}
-
-	public Alert(String stationName, Long stationID, Long timestamp,
-			Long current, Long calculated, Long prediction, String status) {
+	
+	public Alert(AlertPk id, Long measured, Long predicted, Long corrected, String measuredStatus,
+			String predictedStatus) {
 		super();
-		this.stationName = stationName;
-		this.stationID = stationID;
-		this.timestamp = timestamp;
-		this.current = current;
-		this.calculated = calculated;
-		this.prediction = prediction;
-		this.status = status;
+		this.id = id;
+		this.measured = measured;
+		this.predicted = predicted;
+		this.corrected = corrected;
+		this.measuredStatus = measuredStatus;
+		this.predictedStatus = predictedStatus;
 	}
 
-	public Alert(String stationName, Long stationID, Long timestamp,
-			Long current) {
-		super();
-		this.stationName = stationName;
-		this.stationID = stationID;
-		this.timestamp = timestamp;
-		this.current = current;
+	public Alert(AlertPk id, Long predicted, Long corrected, String status) {
+		this(id, null, predicted, corrected, status, null);
 	}
 
-	public String getStationName() {
-		return stationName;
-	}
-
-	public void setStationName(String stationName) {
-		this.stationName = stationName;
-	}
-
-	public Long getCalculated() {
-		return calculated;
-	}
-
-	public void setCalculated(Long calculated) {
-		this.calculated = calculated;
-	}
-
-	public Long getStationID() {
-		return stationID;
-	}
-
-	public void setStationID(Long stationID) {
-		this.stationID = stationID;
-	}
-
-	public Long getTimestamp() {
-		return timestamp;
-	}
-
-	public void setTimestamp(Long timestamp) {
-		this.timestamp = timestamp;
-	}
-
-	public Long getCurrent() {
-		return current;
-	}
-
-	public void setCurrent(Long current) {
-		this.current = current;
-	}
-
-	public Long getPrediction() {
-		return prediction;
-	}
-
-	public void setPrediction(Long prediction) {
-		this.prediction = prediction;
+	public Alert(AlertPk id, Long measured) {
+		this(id, measured, null, null, null, null);
 	}
 	
-	public String getStatus() {
-		return status;
+	public AlertPk getId() {
+		return id;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	public void setId(AlertPk id) {
+		this.id = id;
+	}
+
+	public Long getMeasured() {
+		return measured;
+	}
+
+	public void setMeasured(Long measured) {
+		this.measured = measured;
+	}
+
+	public Long getPredicted() {
+		return predicted;
+	}
+
+	public void setPredicted(Long predicted) {
+		this.predicted = predicted;
+	}
+
+	public Long getCorrected() {
+		return corrected;
+	}
+
+	public void setCorrected(Long corrected) {
+		this.corrected = corrected;
+	}
+	
+	public String getMeasuredStatus() {
+		return measuredStatus;
+	}
+
+	public void setMeasuredStatus(String measuredStatus) {
+		this.measuredStatus = measuredStatus;
+	}
+
+	public String getPredictedStatus() {
+		return predictedStatus;
+	}
+
+	public void setPredictedStatus(String predictedStatus) {
+		this.predictedStatus = predictedStatus;
 	}
 
 	@Override
 	public String toString() {
-		return "Alert [id=" + id + ", stationName=" + stationName
-				+ ", stationID=" + stationID + ", timestamp=" + timestamp
-				+ ", current=" + current + ", calculated=" + calculated
-				+ ", prediction=" + prediction + ", status=" + status + "]";
+		return "Alert [id=" + id + ", measured=" + measured + ", predicted=" + predicted + ", corrected=" + corrected
+				+ ", measuredStatus=" + measuredStatus + ", predictedStatus=" + predictedStatus + "]";
 	}
-	
-	
-	
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Alert other = (Alert) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		return true;
+	}
 }

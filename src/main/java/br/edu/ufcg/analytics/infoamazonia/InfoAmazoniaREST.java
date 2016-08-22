@@ -14,6 +14,7 @@ public class InfoAmazoniaREST {
 			.getLogger(InfoAmazoniaREST.class);
 
 	public static void main(String args[]) {
+		
         SpringApplication.run(InfoAmazoniaREST.class, args);
     }
 }

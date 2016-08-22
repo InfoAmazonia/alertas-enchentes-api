@@ -18,16 +18,26 @@ public class PredictionController {
 	AlertRepository repository;
 
 	@RequestMapping("/{id}/prediction")
-	public ResponseEntity<Alert> getRecomendationsFor(@PathVariable Long id,
-			@RequestParam(value = "timestamp", defaultValue = "") Long timestamp) {
-
-		List<Alert> alert = repository.find(id, timestamp);
+	public ResponseEntity<List<Alert>> getRecomendationsFor(@PathVariable Long id,
+			@RequestParam(value = "timestamp", defaultValue = "") String timestamp) {
 		
-		if (alert.isEmpty()) {
+		if(timestamp.isEmpty()){
+			timestamp = getLastMeasuredHour();
+		}
+		
+//		repository.getLatest(id)
+		
+		List<Alert> alert = repository.getBetween(id, Long.valueOf(timestamp), Long.valueOf(timestamp) + 43200);
+		
+		if (alert == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<>(alert.get(0), HttpStatus.OK);
+		return new ResponseEntity<>(alert, HttpStatus.OK);
+	}
+
+	private String getLastMeasuredHour() {
+		return Long.toString(System.currentTimeMillis()/1000);
 	}
 
 }
