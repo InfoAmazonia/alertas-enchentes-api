@@ -39,7 +39,7 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 		Alert current = repository.findOne(new AlertPk(id, timestamp));
 		Alert past = repository.findOne(new AlertPk(id, timestamp-DELTA));
 		Alert future = new Alert();
-		future.setId(new AlertPk(id, timestamp));
+		future.setId(new AlertPk(id, timestamp + DELTA));
 		
 		if(current == null || past == null || currentXapuri == null || pastXapuri == null){
 			future.setPredicted(current.getMeasured());
