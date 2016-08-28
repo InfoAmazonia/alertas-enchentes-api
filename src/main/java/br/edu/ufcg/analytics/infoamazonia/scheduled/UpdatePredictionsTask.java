@@ -1,3 +1,4 @@
+
 package br.edu.ufcg.analytics.infoamazonia.scheduled;
 
 import java.io.File;
@@ -9,62 +10,68 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import br.edu.ufcg.analytics.infoamazonia.Alert;
-import br.edu.ufcg.analytics.infoamazonia.AlertPk;
-import br.edu.ufcg.analytics.infoamazonia.AlertRepository;
+import br.edu.ufcg.analytics.infoamazonia.model.Alert;
+import br.edu.ufcg.analytics.infoamazonia.model.AlertPk;
+import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
+import br.edu.ufcg.analytics.infoamazonia.model.Station;
+import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 
 public abstract class UpdatePredictionsTask {
 	
 	@Autowired
 	AlertRepository repository;
 
+	@Autowired
+	StationRepository stationRepository;
+
 	protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss");
-	protected String stationName;
+	protected List<Long> dependencies;
 	protected Long stationId;
-	protected Map<String, Long> dependencies;
+
 	
-	public UpdatePredictionsTask(String stationName, Long stationId, Entry<String, Long> entry) {
-		this.stationName = stationName;
+	public UpdatePredictionsTask(Long stationId, Long... dependenciesIds) {
 		this.stationId = stationId;
-		this.dependencies = Stream.of(entry).collect(Collectors.toMap((e) -> e.getKey(), (e) -> e.getValue()));
+		this.dependencies = Arrays.asList(dependenciesIds);
 	}
 
 	public void update() throws FileNotFoundException, ParseException{
 		updateDependencies();
-		populateStation(stationId, stationName, true);
+		populateStation(stationId);
 	}
 	
-    protected static <K, V> Map.Entry<K, V> dependency(K key, V value) {
+	protected static <K, V> Map.Entry<K, V> dependency(K key, V value) {
         return new AbstractMap.SimpleEntry<>(key, value);
     }
     
 	protected void updateDependencies() throws FileNotFoundException, ParseException {
-		
-		for (Entry<String, Long> dependency : dependencies.entrySet()) {
-			populateStation(dependency.getValue(), dependency.getKey(), false);
+		for (Long dependency : dependencies) {
+			populateStation(dependency);
 		}
 	}
 	
-	private void populateStation(long id, String name, boolean predict)
+	private void populateStation(Long id)
 			throws ParseException, FileNotFoundException {
+		
 		LocalDateTime start;
-		List<Alert> latest = repository.getLatest(id);
+		
+		Station station = stationRepository.findOne(id);
+
+		List<Alert> latest = repository.getLatestFromStation(station);
 		if(latest.isEmpty()){
-			start = LocalDateTime.parse(name, formatter);
+			start = LocalDateTime.parse(station.oldestMeasureDate, formatter);
 		}else{
-			start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.get(0).getId().getTimestamp()), ZoneId.of("America/Recife"));
+			start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.get(0).id.timestamp), ZoneId.of("America/Recife"));
 		}
 		
-		String fileName = downloadData(id, start.minusDays(1), start);
+		String fileName = downloadData(station.id, start.minusDays(1), start);
+		
 		try(Scanner input = new Scanner(new File(fileName));){
 			if(input.hasNext()){
 				input.nextLine(); //skip header
@@ -73,52 +80,36 @@ public abstract class UpdatePredictionsTask {
 				String line = input.nextLine().trim();
 				String[] tokens = line.split("\\s+");
 				long timestamp = LocalDateTime.parse(tokens[0] + tokens[1], formatter).toEpochSecond(ZoneOffset.of("-3"));
-				long cota = tokens.length == 3?Long.valueOf(tokens[2]):-1;
-				if(predict){
-					Alert alert = repository.findOne(new AlertPk(id, timestamp));
-					if(alert == null){
-						alert = new Alert();
-						alert.setId(new AlertPk(id, timestamp));
-					}
-					alert = setMeasuredStatus(cota, alert);
+				long quota = tokens.length == 3?Long.valueOf(tokens[2]):-1;
+				if(station.predict){
+					Alert alert = repository.exists(new AlertPk(timestamp, station))? 
+							repository.findOne(new AlertPk(timestamp, station)): 
+								new Alert(station, timestamp);
+					alert.registerQuota(quota);
 					repository.save(alert);
-					
-					Alert prediction = predict(id, timestamp);
+					Alert prediction = predict(timestamp);
 					repository.save(prediction);
 				}else{
-					if(repository.findOne(new AlertPk(id, timestamp)) == null){
-						repository.save(new Alert(new AlertPk(id, timestamp), cota));
+					if(!repository.exists(new AlertPk(timestamp, station))){
+						Alert alert = new Alert(station, timestamp, quota);
+						repository.save(alert);
 					}
 				}
 			}
 		}
-		
 	}
 
-	protected abstract Alert setMeasuredStatus(long cota, Alert alert);
-
-	protected abstract Alert predict(long id, long timestamp);
+	protected abstract Alert predict(long timestamp);
 
 	private String downloadData(long id, LocalDateTime start, LocalDateTime end) {
 //		int day = start.getDayOfMonth();
 //		int month = start.getMonthValue();
 //		int year = start.getYear();
 		
-		if(id == 13551000){
+		if(id == 13551000L){
 			return "data/13551000XAPURI-PCD_1122014-2282016.txt";
 		}else{
 			return "data/13600002RIOBRANCO_1122014-2282016.txt";
 		}
 	}
-	
-	protected String calculateStatus(long predicted, long alerta, long inundacao) {
-		if(predicted < alerta){
-			return "NORMAL";
-		}else if (alerta <= predicted && predicted < inundacao){
-			return "ALERTA";
-		}else{
-			return "INUNDACAO";
-		}
-	}
-
 }
