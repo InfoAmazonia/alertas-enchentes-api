@@ -7,10 +7,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
-import br.edu.ufcg.analytics.infoamazonia.model.Child;
-import br.edu.ufcg.analytics.infoamazonia.model.ChildRepository;
-import br.edu.ufcg.analytics.infoamazonia.model.Parent;
-import br.edu.ufcg.analytics.infoamazonia.model.ParentRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 
@@ -19,12 +15,6 @@ public class StationLoader implements ApplicationListener<ApplicationReadyEvent>
 	
 	@Autowired
 	private StationRepository repository;
-
-	@Autowired
-	private ParentRepository pr;
-
-	@Autowired
-	private ChildRepository cr;
 
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent arg0) {
