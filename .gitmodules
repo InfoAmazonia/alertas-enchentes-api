@@ -1,0 +1,3 @@
+[submodule "src/main/resources/public/w"]
+	path = src/main/resources/public/w
+	url = https://github.com/jeffersonrpn/alertas-enchentes-widget.git
