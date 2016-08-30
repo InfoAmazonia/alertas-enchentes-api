@@ -99,16 +99,15 @@ public abstract class UpdatePredictionsTask {
 			Alert alert = repository.findFirstByStationAndTimestamp(station, timestamp);
 			if(alert == null){
 				repository.save(new Alert(station, timestamp, quota));
+				if(station.predict){
+					repository.save(predict(timestamp));
+				}
 			}else{
 				if(alert.measured == null){
-					System.out.println(alert);
 					alert.registerQuota(quota);
 					repository.save(alert);
-					System.out.println("A>" + alert);
 					if(station.predict){
-						Alert prediction = predict(timestamp);
-						System.out.println("P>" + prediction);
-						repository.save(prediction);
+						repository.save(predict(timestamp));
 					}
 				}
 			}

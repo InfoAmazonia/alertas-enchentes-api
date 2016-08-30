@@ -1,6 +1,7 @@
 package br.edu.ufcg.analytics.infoamazonia;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +52,16 @@ public class PredictionController {
 		if (station == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
-		List<Alert> alert = null;//repository.findAllByStationBetween(station, Long.valueOf(timestamp), Long.valueOf(timestamp) + 43200);
 		
-		return new ResponseEntity<>(new PredictionInfo(station, alert) , HttpStatus.OK);
+		List<Alert> alerts = new LinkedList<>();
+		Alert lastMeasurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+		if(lastMeasurement!= null){
+			alerts.add(lastMeasurement);
+		}
+
+		alerts.addAll(repository.findAllByStationAndTimestampBetween(station, Long.valueOf(timestamp), Long.valueOf(timestamp) + 43200));
+		
+		return new ResponseEntity<>(new PredictionInfo(station, alerts) , HttpStatus.OK);
 	}
 
 	private String getLastMeasuredHour() {

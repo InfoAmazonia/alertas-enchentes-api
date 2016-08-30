@@ -30,6 +30,7 @@ public class Alert implements Serializable {
 	public Long measured;
 
 	@Column(nullable=true)
+	@JsonIgnore
 	public Long calculated;
 	
 	@Column(nullable=true)
@@ -43,6 +44,7 @@ public class Alert implements Serializable {
 	
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
 	@JoinColumn(name = "station_id", referencedColumnName = "id", insertable = false, updatable = false)
+	@JsonIgnore
 	public Station station;
 
 	
