@@ -2,6 +2,7 @@ package br.edu.ufcg.analytics.infoamazonia.model;
 
 import java.io.Serializable;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -16,7 +17,7 @@ public class Station implements Serializable{
 	private static final long serialVersionUID = -2183448021591991181L;
 
 	@Id
-	public long id;
+	public Long id;
 	
 	public String name;
 	public Long warningThreshold;
@@ -25,12 +26,17 @@ public class Station implements Serializable{
 	public String oldestMeasureDate;
 	@JsonIgnore
 	public Boolean predict;
+	@JsonIgnore
+	public Long lstStation;
+	@Column(length=5000)
+	@JsonIgnore
+	public String viewState;
 	
 	public Station() {
 		
 	}
 	
-	public Station(String name, long id, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict) {
+	public Station(String name, long id, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState) {
 		this();
 		this.name = name;
 		this.id = id;
@@ -38,6 +44,8 @@ public class Station implements Serializable{
 		this.floodThreshold = floodThreshold;
 		this.oldestMeasureDate = oldestMeasureDate;
 		this.predict = predict;
+		this.lstStation = lstStation;
+		this.viewState = viewState;
 	}
 
 	public String calculateStatus(long quota) {

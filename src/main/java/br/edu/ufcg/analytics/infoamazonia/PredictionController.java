@@ -52,7 +52,7 @@ public class PredictionController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		List<Alert> alert = repository.getSliceFromStation(station, Long.valueOf(timestamp), Long.valueOf(timestamp) + 43200);
+		List<Alert> alert = null;//repository.findAllByStationBetween(station, Long.valueOf(timestamp), Long.valueOf(timestamp) + 43200);
 		
 		return new ResponseEntity<>(new PredictionInfo(station, alert) , HttpStatus.OK);
 	}

@@ -4,6 +4,11 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Alert implements Serializable {
@@ -15,7 +20,11 @@ public class Alert implements Serializable {
 	private static final long serialVersionUID = 6750021246745651633L;
 
     @EmbeddedId
+    @JsonIgnore
     public AlertPk id;
+
+	@Column(name="timestamp", insertable=false, updatable=false)
+	public Long timestamp;
 
 	@Column
 	public Long measured;
@@ -32,6 +41,11 @@ public class Alert implements Serializable {
 	@Column(nullable=true)
 	public String predictedStatus;
 	
+	@ManyToOne(optional=false, fetch=FetchType.EAGER)
+	@JoinColumn(name = "station_id", referencedColumnName = "id", insertable = false, updatable = false)
+	public Station station;
+
+	
 	public Alert() {
 		// TODO Auto-generated constructor stub
 	}
@@ -39,7 +53,9 @@ public class Alert implements Serializable {
 	public Alert(Station station, Long timestamp, Long measured, Long calculated, Long predicted, String measuredStatus,
 			String predictedStatus) {
 		super();
-		this.id = new AlertPk(timestamp, station);
+		this.station = station;
+		this.timestamp = timestamp;
+		this.id = new AlertPk(timestamp, station.id);
 		this.measured = measured;
 		this.calculated = calculated;
 		this.predicted = predicted;
@@ -62,13 +78,13 @@ public class Alert implements Serializable {
 
 	public void registerQuota(Long quota){
 		this.measured = quota;
-		this.measuredStatus = this.id.station.calculateStatus(quota);
+		this.measuredStatus = this.station.calculateStatus(quota);
 	}
 
 	public void registerPrediction(Long calculated, Long predicted) {
 		this.calculated = calculated;
 		this.predicted = predicted;
-		this.predictedStatus = this.id.station.calculateStatus(predicted);
+		this.predictedStatus = this.station.calculateStatus(predicted);
 	}
 
 	@Override

@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import br.edu.ufcg.analytics.infoamazonia.model.Alert;
-import br.edu.ufcg.analytics.infoamazonia.model.AlertPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
@@ -27,13 +26,13 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 		super(MADEIRA_ID, XAPURI_ID);
 	}
 
-	@Scheduled(initialDelay=10000, fixedRate = RATE)
+	@Scheduled(initialDelay=1000, fixedRate = RATE)
 	@Override
 	@Transactional
 	public void update() throws FileNotFoundException, ParseException {
 		System.out.println("UpdateRioMadeira.update()");
-		
 		super.update();
+		System.out.println("Updated");
 	}
 
 	@Override
@@ -44,11 +43,11 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 		
 		Alert future = new Alert(stationMadeira, timestamp + DELTA);
 		
-		Alert pastXapuri = repository.findOne(new AlertPk(timestamp - DELTA, stationXapuri));
-		Alert pastPastXapuri = repository.findOne(new AlertPk(timestamp - 2*DELTA, stationXapuri));
+		Alert pastXapuri = repository.findFirstByStationAndTimestamp(stationXapuri, timestamp - DELTA);
+		Alert pastPastXapuri = repository.findFirstByStationAndTimestamp(stationXapuri, timestamp - 2*DELTA);
 		
-		Alert current = repository.findOne(new AlertPk(timestamp, stationMadeira));
-		Alert past = repository.findOne(new AlertPk(timestamp - DELTA, stationMadeira));
+		Alert current = repository.findFirstByStationAndTimestamp(stationMadeira, timestamp);
+		Alert past = repository.findFirstByStationAndTimestamp(stationMadeira, timestamp - DELTA);
 
 		if ((current != null && current.measured != null) 
 				&& (past != null && past.measured != null)
