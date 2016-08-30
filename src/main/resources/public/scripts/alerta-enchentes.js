@@ -68,6 +68,7 @@ var Alert = (function(window, undefined) {
       url: "http://alertas-enchentes-api.herokuapp.com/station/"+params.station+"/prediction",
       data: {},
       sucess: function(river) {
+        console.log(river.info);
         callback(river, timestamp);
       },
       error: function(error) {
