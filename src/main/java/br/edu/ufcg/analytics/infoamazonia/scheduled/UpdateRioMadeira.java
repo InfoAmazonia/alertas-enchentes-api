@@ -32,7 +32,7 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 	public void update() throws FileNotFoundException, ParseException {
 		System.out.println("UpdateRioMadeira.update()");
 		super.update();
-		System.out.println("Updated");
+		System.out.println("Updated RioMadeira");
 	}
 
 	@Override
