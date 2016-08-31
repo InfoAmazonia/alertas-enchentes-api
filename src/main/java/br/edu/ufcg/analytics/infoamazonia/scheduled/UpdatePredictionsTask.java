@@ -131,7 +131,7 @@ public abstract class UpdatePredictionsTask {
 		nvps.add(new BasicNameValuePair("lstDisponivel", "2"));
 		nvps.add(new BasicNameValuePair("lstEstacao", Long.toString(station.lstStation)));
 		nvps.add(new BasicNameValuePair("lstOrigem", "5"));
-		nvps.add(new BasicNameValuePair("lstSubBacia", "13"));
+		nvps.add(new BasicNameValuePair("lstSubBacia", Integer.toString(station.subbacia)));
 		nvps.add(new BasicNameValuePair("txtAnofim", Integer.toString(end.getYear())));
 		nvps.add(new BasicNameValuePair("txtAnoini", Integer.toString(start.getYear())));
 		nvps.add(new BasicNameValuePair("txtCodigo", Long.toString(station.id)));
@@ -169,5 +169,15 @@ public abstract class UpdatePredictionsTask {
 		}
 		System.out.println(result.size());
 		return result;
+	}
+	
+	protected boolean isAnyAlertNull(Alert... alerts){
+		for (Alert alert : alerts) {
+			if(alert == null || alert.measured == null){
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

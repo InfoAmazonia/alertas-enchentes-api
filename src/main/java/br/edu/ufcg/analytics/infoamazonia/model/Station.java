@@ -31,12 +31,14 @@ public class Station implements Serializable{
 	@Column(length=5000)
 	@JsonIgnore
 	public String viewState;
+
+	public int subbacia;
 	
 	public Station() {
 		
 	}
 	
-	public Station(String name, long id, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState) {
+	public Station(String name, long id, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int subbacia) {
 		this();
 		this.name = name;
 		this.id = id;
@@ -46,6 +48,7 @@ public class Station implements Serializable{
 		this.predict = predict;
 		this.lstStation = lstStation;
 		this.viewState = viewState;
+		this.subbacia = subbacia;
 	}
 
 	public String calculateStatus(long quota) {
