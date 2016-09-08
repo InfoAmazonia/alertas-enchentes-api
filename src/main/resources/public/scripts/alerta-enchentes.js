@@ -1,5 +1,6 @@
 var Alert = (function(window, undefined) {
   var Alert = {};
+  Alert.$ = Alert.jQuery = jQuery.noConflict(true);
 
   function loadScript(url, callback) {
     var script = document.createElement('script');
@@ -57,23 +58,36 @@ var Alert = (function(window, undefined) {
     return params;
   }
 
+  function getWidgetLocation(callback) {
+    Alert.$('[data-alerta-enchentes-station]').each(function() {
+      var
+        location = Alert.$(this),
+        station = location.attr('data-alerta-enchentes-station'),
+        timestamp = location.attr('data-alerta-enchentes-timestamp'),
+        htmlWrapper = 'alerta-enchentes-'+station;
+      location.attr('id', htmlWrapper);
+      if (!timestamp) {
+        timestamp = new Date().getTime();
+      }
+      var params = {
+        htmlWrapper: htmlWrapper,
+        station: station,
+        timestamp: timestamp
+      }
+      getData(params, callback)
+    });
+  }
+
   function getData(params, callback) {
-    Alert.$ = Alert.jQuery = jQuery.noConflict(true);
-
-    var timestamp = parseInt(params.timestamp);
-
     Alert.$.ajax({
       method: 'GET',
       url: 'http://alertas-enchentes-api.herokuapp.com/station/'+params.station+'/prediction',
       data: {},
       success: function(river) {
-        console.log(river);
-        callback(river, timestamp);
+        callback(river, params.timestamp, params.htmlWrapper);
       },
       error: function(error) {
         console.log("Error");
-        // var river = JSON.parse('{"info":{"id":13600002,"name":"Rio Madeira","warningThreshold":1350,"floodThreshold":1400},"data":[{"timestamp":1472571900,"measured":163,"predicted":171,"measuredStatus":"NORMAL","predictedStatus":"NORMAL"},{"timestamp":1472574600,"measured":null,"predicted":170,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472575500,"measured":null,"predicted":169,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472576400,"measured":null,"predicted":162,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472577300,"measured":null,"predicted":164,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472578200,"measured":null,"predicted":167,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472579100,"measured":null,"predicted":163,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472580000,"measured":null,"predicted":168,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472580900,"measured":null,"predicted":161,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472581800,"measured":null,"predicted":165,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472582700,"measured":null,"predicted":165,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472583600,"measured":null,"predicted":168,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472584500,"measured":null,"predicted":163,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472585400,"measured":null,"predicted":161,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472586300,"measured":null,"predicted":160,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472587200,"measured":null,"predicted":168,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472588100,"measured":null,"predicted":161,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472589000,"measured":null,"predicted":162,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472589900,"measured":null,"predicted":162,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472590800,"measured":null,"predicted":161,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472591700,"measured":null,"predicted":162,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472592600,"measured":null,"predicted":157,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472593500,"measured":null,"predicted":160,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472594400,"measured":null,"predicted":154,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472595300,"measured":null,"predicted":154,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472596200,"measured":null,"predicted":159,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472597100,"measured":null,"predicted":154,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472598000,"measured":null,"predicted":149,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472598900,"measured":null,"predicted":162,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472599800,"measured":null,"predicted":154,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472600700,"measured":null,"predicted":153,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472601600,"measured":null,"predicted":151,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472602500,"measured":null,"predicted":157,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472603400,"measured":null,"predicted":161,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472604300,"measured":null,"predicted":152,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472605200,"measured":null,"predicted":151,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472606100,"measured":null,"predicted":159,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472607000,"measured":null,"predicted":161,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472607900,"measured":null,"predicted":158,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472608800,"measured":null,"predicted":163,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472609700,"measured":null,"predicted":151,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472610600,"measured":null,"predicted":153,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472611500,"measured":null,"predicted":157,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472612400,"measured":null,"predicted":158,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472613300,"measured":null,"predicted":157,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472614200,"measured":null,"predicted":158,"measuredStatus":null,"predictedStatus":"NORMAL"},{"timestamp":1472615100,"measured":null,"predicted":156,"measuredStatus":null,"predictedStatus":"NORMAL"}]}');
-        // callback(river, timestamp);
       }
     });
   }
@@ -107,7 +121,7 @@ var Alert = (function(window, undefined) {
     };
   }
 
-  function drawWidget(river, timestamp) {
+  function drawWidget(river, timestamp, htmlWrapper) {
     if (!river) return;
 
     var data = river.data;
@@ -115,14 +129,14 @@ var Alert = (function(window, undefined) {
     var margin = {
           top: 50,
           right: 10,
-          bottom: 100,
+          bottom: 30,
           left: 10
         },
         width = 600 - margin.left - margin.right,
-        height = 250 - margin.top - margin.bottom,
+        height = 160 - margin.top - margin.bottom,
         viewBoxWidth = width + margin.left + margin.right,
         viewBoxHeight = height + margin.top + margin.bottom,
-        baseValue = 100,
+        baseValue = margin.bottom,
         tooltipWidth = 50,
         tooltipHeight = 30;
 
@@ -149,7 +163,7 @@ var Alert = (function(window, undefined) {
       alertHour = hours + ':' + minutes.substr(-2);
     }
 
-    var mapInfo = d3.select("#alerta-enchentes")
+    var mapInfo = d3.select("#"+htmlWrapper)
       .append("div")
         .attr("class", "alerta-enchentes-map-info")
         .style({
@@ -386,7 +400,7 @@ var Alert = (function(window, undefined) {
         loadScript('//cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/locale/br.js', function() {
           var url = getScriptUrl();
           var params = getUrlParameters(url);
-          getData(params, drawWidget);
+          getWidgetLocation(drawWidget)
         });
       });
     });
