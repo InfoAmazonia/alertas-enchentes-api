@@ -81,7 +81,7 @@ var Alert = (function(window, undefined) {
   function getData(params, callback) {
     Alert.$.ajax({
       method: 'GET',
-      url: 'http://alertas-enchentes-api.herokuapp.com/station/'+params.station+'/prediction',
+      url: 'http://alertas-enchentes-api.herokuapp.com/station/'+params.station+'/prediction?timestamp='+Math.floor(params.timestamp/1000),
       data: {},
       success: function(river) {
         callback(river, params.timestamp, params.htmlWrapper);
@@ -185,14 +185,10 @@ var Alert = (function(window, undefined) {
       // Alert info
       var alertInfo = mapInfo.append("div")
         .attr("class", "alerta-enchentes-alert-info")
-        .style({
-          "float": "left"
-        })
         .append("div");
       if (alertHour !== null) {
         alertInfo.append("div")
         .style({
-          "float": "left",
           "margin-top": "10px",
           "margin-right": "12px",
           "font-size": "60px"
@@ -202,7 +198,6 @@ var Alert = (function(window, undefined) {
       }
       var alertInfoText = alertInfo.append("div")
         .style({
-          "float": "left",
           "margin-top": "25px",
           "font-size": "16px"
         });
@@ -213,10 +208,12 @@ var Alert = (function(window, undefined) {
         .html(alertTimestamp.title);
       alertInfoText.append("div")
         .html(alertTimestamp.description);
-      var graph = mapInfo.append("div")
-        .attr("class", "alerta-enchentes-graph");
 
     // Graph
+    if (river.data.length < 1) return;
+
+    var graph = mapInfo.append("div")
+    .attr("class", "alerta-enchentes-graph");
     var svg = graph.append("svg")
         .attr("width", "100%")
         .attr("viewBox", "0 0 "+viewBoxWidth+" "+viewBoxHeight)
@@ -234,21 +231,22 @@ var Alert = (function(window, undefined) {
     // Draw lines
     svg.append("line")
       .attr({
-        "x1": 0,
+        "x1": margin.right*2,
         "y1": y(river.info.warningThreshold),
-        "x2": width+10,
+        "x2": width-margin.left*2,
         "y2": y(river.info.warningThreshold),
         "fill": "none",
         "stroke-width": "2px",
-        "opacity": 1,
+        "opacity": 0.5,
         "stroke-dasharray": "10,5",
         "stroke": color("ALERTA")
       });
     svg.append("text")
       .attr({
-        "x": 0,
+        "x": margin.right*2,
         "y": y(river.info.warningThreshold) + 12,
         "fill": color("ALERTA"),
+        "opacity": 0.5,
         "font-size": "10",
         "font-family": "sans"
       })
@@ -256,20 +254,21 @@ var Alert = (function(window, undefined) {
     svg.append("line")
       .attr({
         "fill": "none",
-        "x1": 0,
+        "x1": margin.right*2,
         "y1": y(river.info.floodThreshold),
-        "x2": width+10,
+        "x2": width-margin.left*2,
         "y2": y(river.info.floodThreshold),
         "stroke-width": "2px",
-        "opacity": 1,
+        "opacity": 0.5,
         "stroke-dasharray": "10,5",
         "stroke": color("INUNDACAO")
       });
     svg.append("text")
       .attr({
-        "x": 0,
+        "x": margin.right*2,
         "y": y(river.info.floodThreshold) - 4,
         "fill": color("INUNDACAO"),
+        "opacity": 0.5,
         "font-size": "10",
         "font-family": "sans"
       })
@@ -397,11 +396,9 @@ var Alert = (function(window, undefined) {
   loadScript('//d3js.org/d3.v3.min.js', function() {
     loadScript('//code.jquery.com/jquery-3.1.0.min.js', function() {
       loadScript('//cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.min.js', function() {
-        loadScript('//cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/locale/br.js', function() {
-          var url = getScriptUrl();
-          var params = getUrlParameters(url);
-          getWidgetLocation(drawWidget)
-        });
+        var url = getScriptUrl();
+        var params = getUrlParameters(url);
+        getWidgetLocation(drawWidget)
       });
     });
   });
