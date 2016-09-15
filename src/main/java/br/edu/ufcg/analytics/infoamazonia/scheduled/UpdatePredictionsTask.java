@@ -54,7 +54,9 @@ public abstract class UpdatePredictionsTask {
 
 	public void update() throws FileNotFoundException, ParseException{
 		updateDependencies();
+		long time = System.currentTimeMillis();
 		populateStation(stationId);
+		System.out.println("Updated station " + stationId + " in " + (System.currentTimeMillis() - time) + " millis");
 	}
 	
 	protected static <K, V> Map.Entry<K, V> dependency(K key, V value) {
