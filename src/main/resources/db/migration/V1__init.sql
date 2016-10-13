@@ -12,6 +12,14 @@ create table alert (
 	primary key (station_id, timestamp)
 );
 
+create table summary (
+	station_id bigint not null, 
+	timestamp varchar(255) not null, 
+	measured bigint,
+	measured_status varchar(255), 
+	primary key (station_id ASC, timestamp ASC)
+);
+
 create table station (
 	id bigint not null, 
 	flood_threshold bigint, 
@@ -19,8 +27,9 @@ create table station (
 	name varchar(255), 
 	oldest_measure_date varchar(255), 
 	predict boolean, 
+	bacia integer not null, 
 	subbacia integer not null, 
-	view_state varchar(5000), 
+	view_state varchar(10000), 
 	warning_threshold bigint, 
 	primary key (id)
 );
