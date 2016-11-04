@@ -24,17 +24,12 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.fasterxml.jackson.core.JsonParser;
 
 import br.edu.ufcg.analytics.infoamazonia.model.Alert;
 import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
@@ -93,7 +88,6 @@ public abstract class UpdatePredictionsTask {
 		System.out.println("latest: "+latest);
 		if(latest == null){
 			start = LocalDateTime.parse(station.oldestMeasureDate, formatter);
-//			start = LocalDateTime.now().minusDays(3);
 			end = LocalDateTime.now().plusDays(1);
 		}else{
 			start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
