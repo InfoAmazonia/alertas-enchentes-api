@@ -28,17 +28,18 @@ public class Station implements Serializable{
 	public Boolean predict;
 	@JsonIgnore
 	public Long lstStation;
-	@Column(length=5000)
+	@Column(length=10000)
 	@JsonIgnore
 	public String viewState;
 
+	public int bacia;
 	public int subbacia;
 	
 	public Station() {
 		
 	}
 	
-	public Station(String name, long id, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int subbacia) {
+	public Station(String name, long id, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int bacia, int subbacia) {
 		this();
 		this.name = name;
 		this.id = id;
@@ -48,17 +49,20 @@ public class Station implements Serializable{
 		this.predict = predict;
 		this.lstStation = lstStation;
 		this.viewState = viewState;
+		this.bacia = bacia;
 		this.subbacia = subbacia;
 	}
 
-	public String calculateStatus(long quota) {
-		if(quota < warningThreshold){
+	public String calculateStatus(Long quota) {
+		if(quota == null)
+			return "INDISPONIVEL";
+		if(quota < warningThreshold)
 			return "NORMAL";
-		}else if (warningThreshold <= quota && quota < floodThreshold){
+		if (warningThreshold <= quota && quota < floodThreshold)
 			return "ALERTA";
-		}else{
+		if (floodThreshold <= quota)
 			return "INUNDACAO";
-		}
+		return "INDISPONIVEL";
 	}
 
 

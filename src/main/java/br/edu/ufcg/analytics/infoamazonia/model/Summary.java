@@ -12,7 +12,7 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class Alert implements Serializable {
+public class Summary implements Serializable {
 	
 
 	/**
@@ -22,26 +22,16 @@ public class Alert implements Serializable {
 
     @EmbeddedId
     @JsonIgnore
-    public AlertPk id;
+    public SummaryPk id;
 
 	@Column(name="timestamp", insertable=false, updatable=false)
-	public Long timestamp;
+	public String timestamp;
 
 	@Column
 	public Long measured;
 
-	@Column(nullable=true, updatable=false)
-	@JsonIgnore
-	public Long calculated;
-	
-	@Column(nullable=true, updatable=false)
-	public Long predicted;
-	
 	@Transient
 	public String measuredStatus;
-	
-	@Transient
-	public String predictedStatus;
 	
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
 	@JoinColumn(name = "station_id", referencedColumnName = "id", insertable = false, updatable = false)
@@ -49,29 +39,24 @@ public class Alert implements Serializable {
 	public Station station;
 
 	
-	public Alert() {
+	public Summary() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Alert(Station station, Long timestamp, Long measured, Long calculated, Long predicted) {
+	public Summary(Station station, String timestamp, Long measured) {
 		super();
 		this.station = station;
 		this.timestamp = timestamp;
-		this.id = new AlertPk(timestamp, station.id);
+		this.id = new SummaryPk(timestamp, station.id);
 		this.measured = measured;
-		this.calculated = calculated;
-		this.predicted = predicted;
+		this.measuredStatus = "";
 	}
 
-	public Alert(Station station, Long timestamp, Long measured) {
-		this(station, timestamp, measured, null, null);
-	}
-	
-	public Alert(Station station, long timestamp) {
-		this(station, timestamp, null, null, null);
+	public Summary(Station station, String timestamp) {
+		this(station, timestamp, null);
 	}
 
-	public AlertPk getId() {
+	public SummaryPk getId() {
 		return id;
 	}
 
@@ -79,12 +64,6 @@ public class Alert implements Serializable {
 	public void registerQuota(Long quota){
 		this.measured = quota;
 		this.measuredStatus = this.station.calculateStatus(quota);
-	}
-
-	public void registerPrediction(Long calculated, Long predicted) {
-		this.calculated = calculated;
-		this.predicted = predicted;
-		this.predictedStatus = this.station.calculateStatus(predicted);
 	}
 
 	@Override
@@ -103,7 +82,7 @@ public class Alert implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Alert other = (Alert) obj;
+		Summary other = (Summary) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -114,14 +93,11 @@ public class Alert implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Alert [id=" + id + ", measured=" + measured + ", calculated=" + calculated + ", predicted="
-				+ predicted + ", measuredStatus=" + measuredStatus + ", predictedStatus=" + predictedStatus
-				+ "]";
+		return "AlertSummary [id=" + id + ", timestamp=" + timestamp + ", measured=" + measured + ", measuredStatus="
+				+ measuredStatus + ", station=" + station + "]";
 	}
 
 	public void fillStatus() {
 		this.measuredStatus = station.calculateStatus(this.measured);
-		this.predictedStatus = station.calculateStatus(this.predicted);
 	}
-
 }

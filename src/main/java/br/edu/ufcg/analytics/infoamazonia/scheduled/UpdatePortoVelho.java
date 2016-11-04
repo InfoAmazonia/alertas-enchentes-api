@@ -3,6 +3,7 @@ package br.edu.ufcg.analytics.infoamazonia.scheduled;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.time.Duration;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import br.edu.ufcg.analytics.infoamazonia.model.Alert;
+import br.edu.ufcg.analytics.infoamazonia.model.AlertPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
@@ -41,26 +43,26 @@ public class UpdatePortoVelho extends UpdatePredictionsTask {
 	}
 
 	@Override
-	protected Alert predict(long timestamp) {
+	protected Alert predict(long timestamp, Map<Long, Station> stations) {
 		
-		Station portoVelho = stationRepository.findOne(PORTOVELHO_ID);
-		Station abuna = stationRepository.findOne(ABUNA_ID);
-		Station morada = stationRepository.findOne(MORADA_ID);
-		Station guajara = stationRepository.findOne(GUAJARA_ID);
+		Station portoVelho = stations.get(PORTOVELHO_ID);
+		Station abuna = stations.get(ABUNA_ID);
+		Station morada = stations.get(MORADA_ID);
+		Station guajara = stations.get(GUAJARA_ID);
 		
 		Alert future = new Alert(portoVelho, timestamp + DELTA);
 		
-		Alert current = repository.findFirstByStationAndTimestamp(portoVelho, timestamp);
-		Alert past = repository.findFirstByStationAndTimestamp(portoVelho, timestamp - DELTA);
+		Alert current = repository.findOne(new AlertPk(timestamp, portoVelho.id));
+		Alert past = repository.findOne(new AlertPk(timestamp - DELTA, portoVelho.id));
 
-		Alert currentAbuna = repository.findFirstByStationAndTimestamp(abuna, timestamp);
-		Alert pastAbuna = repository.findFirstByStationAndTimestamp(abuna, timestamp - DELTA);
+		Alert currentAbuna = repository.findOne(new AlertPk(timestamp, abuna.id));
+		Alert pastAbuna = repository.findOne(new AlertPk(timestamp - DELTA, abuna.id));
 
-		Alert currentMorada = repository.findFirstByStationAndTimestamp(morada, timestamp - DELTA);
-		Alert pastMorada = repository.findFirstByStationAndTimestamp(morada, timestamp - 2*DELTA);
+		Alert currentMorada = repository.findOne(new AlertPk(timestamp - DELTA, morada.id));
+		Alert pastMorada = repository.findOne(new AlertPk(timestamp - 2*DELTA, morada.id));
 
-		Alert currentGuajara = repository.findFirstByStationAndTimestamp(guajara, timestamp - 2*DELTA);
-		Alert pastGuajara = repository.findFirstByStationAndTimestamp(guajara, timestamp - 4*DELTA);
+		Alert currentGuajara = repository.findOne(new AlertPk(timestamp - 2*DELTA, guajara.id));
+		Alert pastGuajara = repository.findOne(new AlertPk(timestamp - 4*DELTA, guajara.id));
 
 		if (!isAnyAlertNull(current, past, currentAbuna, pastAbuna, currentMorada, pastMorada, currentGuajara, pastGuajara)) {
 
