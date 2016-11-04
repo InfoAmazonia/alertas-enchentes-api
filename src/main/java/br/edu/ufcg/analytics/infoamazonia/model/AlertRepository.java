@@ -16,4 +16,6 @@ public interface AlertRepository extends CrudRepository<Alert, AlertPk> {
 
 	List<Alert> findAllByStationAndTimestampBetween(Station station, Long start, Long end);
 
+	Long countByStation(Station station);
+
 }

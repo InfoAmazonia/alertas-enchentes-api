@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,17 +30,17 @@ public class Alert implements Serializable {
 	@Column
 	public Long measured;
 
-	@Column(nullable=true)
+	@Column(nullable=true, updatable=false)
 	@JsonIgnore
 	public Long calculated;
 	
-	@Column(nullable=true)
+	@Column(nullable=true, updatable=false)
 	public Long predicted;
 	
-	@Column(nullable=true)
+	@Transient
 	public String measuredStatus;
 	
-	@Column(nullable=true)
+	@Transient
 	public String predictedStatus;
 	
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
@@ -52,8 +53,7 @@ public class Alert implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Alert(Station station, Long timestamp, Long measured, Long calculated, Long predicted, String measuredStatus,
-			String predictedStatus) {
+	public Alert(Station station, Long timestamp, Long measured, Long calculated, Long predicted) {
 		super();
 		this.station = station;
 		this.timestamp = timestamp;
@@ -61,16 +61,14 @@ public class Alert implements Serializable {
 		this.measured = measured;
 		this.calculated = calculated;
 		this.predicted = predicted;
-		this.measuredStatus = measuredStatus;
-		this.predictedStatus = predictedStatus;
 	}
 
 	public Alert(Station station, Long timestamp, Long measured) {
-		this(station, timestamp, measured, null, null, null, null);
+		this(station, timestamp, measured, null, null);
 	}
 	
 	public Alert(Station station, long timestamp) {
-		this(station, timestamp, null, null, null, null, null);
+		this(station, timestamp, null, null, null);
 	}
 
 	public AlertPk getId() {
@@ -119,6 +117,11 @@ public class Alert implements Serializable {
 		return "Alert [id=" + id + ", measured=" + measured + ", calculated=" + calculated + ", predicted="
 				+ predicted + ", measuredStatus=" + measuredStatus + ", predictedStatus=" + predictedStatus
 				+ "]";
+	}
+
+	public void fillStatus() {
+		this.measuredStatus = station.calculateStatus(this.measured);
+		this.predictedStatus = station.calculateStatus(this.predicted);
 	}
 
 }

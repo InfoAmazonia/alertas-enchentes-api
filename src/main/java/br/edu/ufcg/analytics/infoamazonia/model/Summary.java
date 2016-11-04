@@ -7,6 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -29,7 +30,7 @@ public class Summary implements Serializable {
 	@Column
 	public Long measured;
 
-	@Column(nullable=true)
+	@Transient
 	public String measuredStatus;
 	
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
@@ -42,22 +43,17 @@ public class Summary implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Summary(Station station, String timestamp, Long measured, String measuredStatus) {
+	public Summary(Station station, String timestamp, Long measured) {
 		super();
 		this.station = station;
 		this.timestamp = timestamp;
 		this.id = new SummaryPk(timestamp, station.id);
 		this.measured = measured;
-		this.measuredStatus = measuredStatus;
+		this.measuredStatus = "";
 	}
 
-	public Summary(Station station, String timestamp, Long measured) {
-		this(station, timestamp, null, null);
-		registerQuota(measured);
-	}
-	
 	public Summary(Station station, String timestamp) {
-		this(station, timestamp, null, null);
+		this(station, timestamp, null);
 	}
 
 	public SummaryPk getId() {
@@ -99,5 +95,9 @@ public class Summary implements Serializable {
 	public String toString() {
 		return "AlertSummary [id=" + id + ", timestamp=" + timestamp + ", measured=" + measured + ", measuredStatus="
 				+ measuredStatus + ", station=" + station + "]";
+	}
+
+	public void fillStatus() {
+		this.measuredStatus = station.calculateStatus(this.measured);
 	}
 }

@@ -63,6 +63,9 @@ public class PredictionController {
 		}
 
 		List<Alert> alerts = repository.findAllByStationAndTimestampBetween(station, timestamp, timestamp + 43200);
+		for (Alert alert : alerts) {
+			alert.fillStatus();
+		}
 		
 		return new ResponseEntity<>(new PredictionInfo<Alert>(station, alerts) , HttpStatus.OK);
 	}
@@ -76,9 +79,12 @@ public class PredictionController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
-		List<Summary> summary = summaryRepository.findAllByStationOrderByTimestampAsc(station);
+		List<Summary> history = summaryRepository.findAllByStationOrderByTimestampAsc(station);
+		for (Summary summary : history) {
+			summary.fillStatus();
+		}
 		
-		return new ResponseEntity<>(new PredictionInfo<Summary>(station, summary) , HttpStatus.OK);
+		return new ResponseEntity<>(new PredictionInfo<Summary>(station, history) , HttpStatus.OK);
 	}
 
 }

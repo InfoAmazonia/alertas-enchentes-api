@@ -6,9 +6,7 @@ create table alert (
 	timestamp bigint not null, 
 	calculated bigint, 
 	measured bigint,
-	measured_status varchar(255), 
 	predicted bigint, 
-	predicted_status varchar(255), 
 	primary key (station_id, timestamp)
 );
 
@@ -16,7 +14,6 @@ create table summary (
 	station_id bigint not null, 
 	timestamp varchar(255) not null, 
 	measured bigint,
-	measured_status varchar(255), 
 	primary key (station_id ASC, timestamp ASC)
 );
 

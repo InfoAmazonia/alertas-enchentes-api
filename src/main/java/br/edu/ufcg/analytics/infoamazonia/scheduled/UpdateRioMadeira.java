@@ -3,6 +3,7 @@ package br.edu.ufcg.analytics.infoamazonia.scheduled;
 import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.time.Duration;
+import java.util.Map;
 
 import javax.transaction.Transactional;
 
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import br.edu.ufcg.analytics.infoamazonia.model.Alert;
+import br.edu.ufcg.analytics.infoamazonia.model.AlertPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
@@ -38,32 +40,29 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 	}
 
 	@Override
-	protected Alert predict(long timestamp) {
+	protected Alert predict(long timestamp, Map<Long, Station> stations) {
 		
-		Station stationMadeira = stationRepository.findOne(MADEIRA_ID);
-		Station stationXapuri = stationRepository.findOne(XAPURI_ID);
+		Station stationMadeira = stations.get(MADEIRA_ID);
+		Station stationXapuri = stations.get(XAPURI_ID);
 		
 		Alert future = new Alert(stationMadeira, timestamp + DELTA);
-		
-		Alert pastXapuri = repository.findFirstByStationAndTimestamp(stationXapuri, timestamp - DELTA);
-		Alert pastPastXapuri = repository.findFirstByStationAndTimestamp(stationXapuri, timestamp - 2*DELTA);
-		
-		Alert current = repository.findFirstByStationAndTimestamp(stationMadeira, timestamp);
-		Alert past = repository.findFirstByStationAndTimestamp(stationMadeira, timestamp - DELTA);
 
-		if ((current != null && current.measured != null) 
-				&& (past != null && past.measured != null)
-				&& (pastXapuri != null && pastXapuri.measured != null)
-				&& (pastPastXapuri != null && pastPastXapuri.measured != null)) {
-
+		Alert pastXapuri = repository.findOne(new AlertPk(timestamp - DELTA,  stationXapuri.id));
+		Alert pastPastXapuri = repository.findOne(new AlertPk(timestamp - 2*DELTA,  stationXapuri.id));
+		
+		Alert current = repository.findOne(new AlertPk(timestamp,  stationMadeira.id));
+		Alert past = repository.findOne(new AlertPk(timestamp - DELTA,  stationMadeira.id));
+		
+		if(!isAnyAlertNull(current, past, pastXapuri, pastPastXapuri)){
 			long calculated  = (long) (current.measured + 
 					ALPHA * (current.measured - past.measured) + 
 					BETA * (pastXapuri.measured - pastPastXapuri.measured));
-			long predicted = calculated + (current.calculated == 0?0:(current.measured - current.calculated));
+			long predicted = calculated + ((current.calculated == null || current.calculated == 0) ? 0
+					: (current.measured - current.calculated));
 
 			future.registerPrediction(calculated, predicted);
 		}else{
-			future.registerPrediction(0L, 0L);
+			future.registerPrediction(null, null);
 		}
 		
 		return future;
