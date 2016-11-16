@@ -20,6 +20,10 @@ public class Station implements Serializable{
 	public Long id;
 	
 	public String name;
+
+	public String riverName;
+	public String cityName;
+	
 	public Long warningThreshold;
 	public Long floodThreshold;
 	@JsonIgnore
@@ -39,10 +43,12 @@ public class Station implements Serializable{
 		
 	}
 	
-	public Station(String name, long id, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int bacia, int subbacia) {
+	public Station(long id, String name, String riverName, String cityName, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int bacia, int subbacia) {
 		this();
 		this.name = name;
 		this.id = id;
+		this.riverName = riverName;
+		this.cityName = cityName;
 		this.warningThreshold = warningThreshold;
 		this.floodThreshold = floodThreshold;
 		this.oldestMeasureDate = oldestMeasureDate;
