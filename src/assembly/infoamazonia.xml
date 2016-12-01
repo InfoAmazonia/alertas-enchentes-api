@@ -6,22 +6,25 @@
 	<formats>
 		<format>zip</format>
 	</formats>
-	<baseDirectory>infoamazonia</baseDirectory>
+	<baseDirectory>alerta_enchentes_api</baseDirectory>
 	<files>
-        <file>
-            <source>target/${project.artifactId}-${project.version}-jar-with-dependencies.jar</source>
-        </file>
-        <file>
+		<file>
+			<source>target/${project.artifactId}-${project.version}.jar</source>
+		</file>
+		<file>
 			<source>README.md</source>
 		</file>
-    </files>
-	<dependencySets>
-		<dependencySet>
-			<outputDirectory>/lib</outputDirectory>
-			<scope>runtime</scope>
-		</dependencySet>
-	</dependencySets>
-		<fileSets>
+		<file>
+			<source>LICENSE</source>
+		</file>
+	</files>
+<!-- 	<dependencySets> -->
+<!-- 		<dependencySet> -->
+<!-- 			<outputDirectory>/lib</outputDirectory> -->
+<!-- 			<scope>runtime</scope> -->
+<!-- 		</dependencySet> -->
+<!-- 	</dependencySets> -->
+	<fileSets>
 		<fileSet>
 			<outputDirectory></outputDirectory>
 			<directory>src/main/resources/production</directory>
@@ -32,12 +35,8 @@
 		<fileSet>
 			<outputDirectory></outputDirectory>
 			<directory>src/main/resources</directory>
-		</fileSet>
-		<fileSet>
-			<outputDirectory></outputDirectory>
-			<directory>src/cassandra/cql</directory>
 			<includes>
-				<include>*</include>
+			<include>db</include>
 			</includes>
 		</fileSet>
 		<fileSet>
@@ -48,5 +47,4 @@
 			</includes>
 		</fileSet>
 	</fileSets>
-
 </assembly>

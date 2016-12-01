@@ -1,0 +1,15 @@
+#!/bin/bash
+
+COMMAND=$1
+
+case $COMMAND in
+	start)
+		nohup java -jar  target/alertas-enchentes-api-1.0.jar &
+	;;
+	stop)
+		nohup java -jar  target/alertas-enchentes-api-1.0.jar &
+	;;
+	*)
+		echo "Usage: ./alerta-enchentes-api <start|stop>"
+	;;
+esac
