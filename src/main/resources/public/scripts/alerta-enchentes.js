@@ -81,7 +81,7 @@ var Alert = (function(window, undefined) {
   function getData(params, callback) {
     Alert.$.ajax({
       method: 'GET',
-      url: 'http://alertas-enchentes-api.herokuapp.com/station/'+params.station+'/prediction?timestamp='+Math.floor(params.timestamp/1000),
+      url: 'http://enchentes.infoamazonia.org:8080/station/'+params.station+'/prediction',
       data: {},
       success: function(river) {
         callback(river, params.timestamp, params.htmlWrapper);
