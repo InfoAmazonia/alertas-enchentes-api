@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.edu.ufcg.analytics.infoamazonia.model.Alert;
-import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Summary;
 import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
@@ -36,7 +36,7 @@ public class PredictionController {
 	}
 
 	@Autowired
-	AlertRepository repository;
+	StationEntryRepository repository;
 
 	@Autowired
 	SummaryRepository summaryRepository;
@@ -45,7 +45,7 @@ public class PredictionController {
 	StationRepository stationRepository;
 
 	@RequestMapping("/{id}/prediction")
-	public ResponseEntity<PredictionInfo<Alert>> getRecomendationsFor(@PathVariable Long id,
+	public ResponseEntity<PredictionInfo<StationEntry>> getRecomendationsFor(@PathVariable Long id,
 			@RequestParam(value = "timestamp", defaultValue = "-1") Long timestamp) {
 		
 		Station station = stationRepository.findOne(id);
@@ -54,7 +54,7 @@ public class PredictionController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
-		Alert lastMeasurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+		StationEntry lastMeasurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		if(timestamp == -1){
 			if(lastMeasurement == null){
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -62,12 +62,12 @@ public class PredictionController {
 			timestamp = lastMeasurement.timestamp;
 		}
 
-		List<Alert> alerts = repository.findAllByStationAndTimestampBetween(station, timestamp, timestamp + 43200);
-		for (Alert alert : alerts) {
+		List<StationEntry> alerts = repository.findAllByStationAndTimestampBetween(station, timestamp, timestamp + 43200);
+		for (StationEntry alert : alerts) {
 			alert.fillStatus();
 		}
 		
-		return new ResponseEntity<>(new PredictionInfo<Alert>(station, alerts) , HttpStatus.OK);
+		return new ResponseEntity<>(new PredictionInfo<StationEntry>(station, alerts) , HttpStatus.OK);
 	}
 
 	@RequestMapping("/{id}/history")

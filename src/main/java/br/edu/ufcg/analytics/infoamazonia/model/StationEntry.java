@@ -12,7 +12,7 @@ import javax.persistence.Transient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class Alert implements Serializable {
+public class StationEntry implements Serializable {
 	
 
 	/**
@@ -22,7 +22,7 @@ public class Alert implements Serializable {
 
     @EmbeddedId
     @JsonIgnore
-    public AlertPk id;
+    public StationEntryPk id;
 
 	@Column(name="timestamp", insertable=false, updatable=false)
 	public Long timestamp;
@@ -49,29 +49,29 @@ public class Alert implements Serializable {
 	public Station station;
 
 	
-	public Alert() {
+	public StationEntry() {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Alert(Station station, Long timestamp, Long measured, Long calculated, Long predicted) {
+	public StationEntry(Station station, Long timestamp, Long measured, Long calculated, Long predicted) {
 		super();
 		this.station = station;
 		this.timestamp = timestamp;
-		this.id = new AlertPk(timestamp, station.id);
+		this.id = new StationEntryPk(timestamp, station.id);
 		this.measured = measured;
 		this.calculated = calculated;
 		this.predicted = predicted;
 	}
 
-	public Alert(Station station, Long timestamp, Long measured) {
+	public StationEntry(Station station, Long timestamp, Long measured) {
 		this(station, timestamp, measured, null, null);
 	}
 	
-	public Alert(Station station, long timestamp) {
+	public StationEntry(Station station, long timestamp) {
 		this(station, timestamp, null, null, null);
 	}
 
-	public AlertPk getId() {
+	public StationEntryPk getId() {
 		return id;
 	}
 
@@ -103,7 +103,7 @@ public class Alert implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Alert other = (Alert) obj;
+		StationEntry other = (StationEntry) obj;
 		if (id == null) {
 			if (other.id != null)
 				return false;

@@ -6,7 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-public class AlertPk implements Serializable {
+public class StationEntryPk implements Serializable {
 
 	/**
 	 * 
@@ -19,11 +19,11 @@ public class AlertPk implements Serializable {
 	@Column(name = "station_id")
 	public Long stationId;
 
-	public AlertPk() {
+	public StationEntryPk() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public AlertPk(Long timestamp, Long stationId) {
+	public StationEntryPk(Long timestamp, Long stationId) {
 		this.timestamp = timestamp;
 		this.stationId = stationId;
 	}
@@ -45,7 +45,7 @@ public class AlertPk implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AlertPk other = (AlertPk) obj;
+		StationEntryPk other = (StationEntryPk) obj;
 		if (stationId == null) {
 			if (other.stationId != null)
 				return false;

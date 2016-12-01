@@ -12,14 +12,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class AlertRepositoryTest {
+public class StationEntryRepositoryTest {
 
     @Autowired
     private StationRepository stationRepository;
 	private Station station;
 
     @Autowired
-    private AlertRepository alertRepository;
+    private StationEntryRepository alertRepository;
 
     @Before
 	public void setUp() throws Exception {
@@ -47,8 +47,8 @@ public class AlertRepositoryTest {
 	@Test
 	public void testFindFirstByStationAndTimestamp() {
 		
-		Alert olderAlert = new Alert(station, 1000L, 2000L);
-		Alert newerAlert = new Alert(station, 1000L, 3000L);
+		StationEntry olderAlert = new StationEntry(station, 1000L, 2000L);
+		StationEntry newerAlert = new StationEntry(station, 1000L, 3000L);
 		alertRepository.save(olderAlert );
 		alertRepository.save(newerAlert);
 		assertEquals(1, alertRepository.count());
@@ -62,23 +62,23 @@ public class AlertRepositoryTest {
 	
 	@Test
 	public void testFindFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc() {
-		alertRepository.save(new Alert(station, 1000L, null) );
-		alertRepository.save(new Alert(station, 2000L, null) );
-		alertRepository.save(new Alert(station, 3000L, 100L) );
-		Alert latestNotNull = new Alert(station, 4000L, 200L);
+		alertRepository.save(new StationEntry(station, 1000L, null) );
+		alertRepository.save(new StationEntry(station, 2000L, null) );
+		alertRepository.save(new StationEntry(station, 3000L, 100L) );
+		StationEntry latestNotNull = new StationEntry(station, 4000L, 200L);
 		alertRepository.save(latestNotNull );
-		alertRepository.save(new Alert(station, 5000L, null) );
+		alertRepository.save(new StationEntry(station, 5000L, null) );
 		assertEquals(5, alertRepository.count());
 		assertEquals(latestNotNull, alertRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station));
 	}
 
 	@Test
 	public void testFindAllByStationAndTimestampBetween() {
-		alertRepository.save(new Alert(station, 1000L, 100L) );
-		alertRepository.save(new Alert(station, 2000L, 200L) );
-		alertRepository.save(new Alert(station, 3000L, 300L) );
-		alertRepository.save(new Alert(station, 4000L, 400L) );
-		alertRepository.save(new Alert(station, 5000L, 500L) );
+		alertRepository.save(new StationEntry(station, 1000L, 100L) );
+		alertRepository.save(new StationEntry(station, 2000L, 200L) );
+		alertRepository.save(new StationEntry(station, 3000L, 300L) );
+		alertRepository.save(new StationEntry(station, 4000L, 400L) );
+		alertRepository.save(new StationEntry(station, 5000L, 500L) );
 		assertEquals(1, alertRepository.findAllByStationAndTimestampBetween(station, 1000L, 1000L).size());
 		assertEquals(1, alertRepository.findAllByStationAndTimestampBetween(station, 999L, 1000L).size());
 		assertEquals(1, alertRepository.findAllByStationAndTimestampBetween(station, 1000L, 1001L).size());
@@ -93,9 +93,9 @@ public class AlertRepositoryTest {
 
 	@Test
 	public void testCountAlertsByStation() {
-		alertRepository.save(new Alert(station, 1000L, 100L) );
-		alertRepository.save(new Alert(station, 1000L, 200L) );
-		alertRepository.save(new Alert(station, 1000L, 300L) );
+		alertRepository.save(new StationEntry(station, 1000L, 100L) );
+		alertRepository.save(new StationEntry(station, 1000L, 200L) );
+		alertRepository.save(new StationEntry(station, 1000L, 300L) );
 		assertEquals((Long)1L, alertRepository.countByStation(station));
 	}
 

@@ -1,15 +1,15 @@
 package br.edu.ufcg.analytics.infoamazonia.scheduled;
 
-public class MeasurementPair {
+public class Measurement {
 	
 	public Long timestamp;
 	public Long quota;
 	
-	public MeasurementPair() {
+	public Measurement() {
 		// TODO Auto-generated constructor stub
 	}
 
-	public MeasurementPair(Long timestamp, Long quota) {
+	public Measurement(Long timestamp, Long quota) {
 		super();
 		this.timestamp = timestamp;
 		this.quota = quota;

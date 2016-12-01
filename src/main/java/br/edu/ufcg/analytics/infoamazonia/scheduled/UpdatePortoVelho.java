@@ -7,15 +7,19 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import br.edu.ufcg.analytics.infoamazonia.model.Alert;
-import br.edu.ufcg.analytics.infoamazonia.model.AlertPk;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntryPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
 public class UpdatePortoVelho extends UpdatePredictionsTask {
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private static final long PORTOVELHO_ID = 15400000;
 	private static final long ABUNA_ID = 15320002;
@@ -37,32 +41,34 @@ public class UpdatePortoVelho extends UpdatePredictionsTask {
 	@Override
 	@Transactional
 	public void update() throws FileNotFoundException, ParseException {
-		System.out.println("UpdatePortoVelho.update()");
+		logger.debug("UpdatePortoVelho.update()");
+		long time = System.currentTimeMillis();
 		super.update();
-		System.out.println("Updated PortoVelho");
+		time = System.currentTimeMillis() - time;
+		logger.debug("Updated PortoVelho in " + time + " millis");
 	}
 
 	@Override
-	protected Alert predict(long timestamp, Map<Long, Station> stations) {
+	protected StationEntry predict(long timestamp, Map<Long, Station> stations) {
 		
 		Station portoVelho = stations.get(PORTOVELHO_ID);
 		Station abuna = stations.get(ABUNA_ID);
 		Station morada = stations.get(MORADA_ID);
 		Station guajara = stations.get(GUAJARA_ID);
 		
-		Alert future = new Alert(portoVelho, timestamp + DELTA);
+		StationEntry future = new StationEntry(portoVelho, timestamp + DELTA);
 		
-		Alert current = repository.findOne(new AlertPk(timestamp, portoVelho.id));
-		Alert past = repository.findOne(new AlertPk(timestamp - DELTA, portoVelho.id));
+		StationEntry current = repository.findOne(new StationEntryPk(timestamp, portoVelho.id));
+		StationEntry past = repository.findOne(new StationEntryPk(timestamp - DELTA, portoVelho.id));
 
-		Alert currentAbuna = repository.findOne(new AlertPk(timestamp, abuna.id));
-		Alert pastAbuna = repository.findOne(new AlertPk(timestamp - DELTA, abuna.id));
+		StationEntry currentAbuna = repository.findOne(new StationEntryPk(timestamp, abuna.id));
+		StationEntry pastAbuna = repository.findOne(new StationEntryPk(timestamp - DELTA, abuna.id));
 
-		Alert currentMorada = repository.findOne(new AlertPk(timestamp - DELTA, morada.id));
-		Alert pastMorada = repository.findOne(new AlertPk(timestamp - 2*DELTA, morada.id));
+		StationEntry currentMorada = repository.findOne(new StationEntryPk(timestamp - DELTA, morada.id));
+		StationEntry pastMorada = repository.findOne(new StationEntryPk(timestamp - 2*DELTA, morada.id));
 
-		Alert currentGuajara = repository.findOne(new AlertPk(timestamp - 2*DELTA, guajara.id));
-		Alert pastGuajara = repository.findOne(new AlertPk(timestamp - 4*DELTA, guajara.id));
+		StationEntry currentGuajara = repository.findOne(new StationEntryPk(timestamp - 2*DELTA, guajara.id));
+		StationEntry pastGuajara = repository.findOne(new StationEntryPk(timestamp - 4*DELTA, guajara.id));
 
 		if (!isAnyAlertNull(current, past, currentAbuna, pastAbuna, currentMorada, pastMorada, currentGuajara, pastGuajara)) {
 

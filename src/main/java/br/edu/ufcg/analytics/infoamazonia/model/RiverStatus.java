@@ -1,5 +1,5 @@
 package br.edu.ufcg.analytics.infoamazonia.model;
 
-public enum AlertStatus {
+public enum RiverStatus {
 	INDISPONIVEL, NORMAL, ALERTA, ENCHENTE
 }

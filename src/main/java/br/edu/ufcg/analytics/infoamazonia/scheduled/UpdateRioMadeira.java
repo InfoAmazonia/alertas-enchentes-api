@@ -7,15 +7,19 @@ import java.util.Map;
 
 import javax.transaction.Transactional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import br.edu.ufcg.analytics.infoamazonia.model.Alert;
-import br.edu.ufcg.analytics.infoamazonia.model.AlertPk;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntryPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
 public class UpdateRioMadeira extends UpdatePredictionsTask {
+
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private static final long MADEIRA_ID = 13600002L;
 	private static final long XAPURI_ID = 13551000L;
@@ -32,26 +36,26 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 	@Override
 	@Transactional
 	public void update() throws FileNotFoundException, ParseException {
+		logger.debug("UpdateRioMadeira.update()");
 		long time = System.currentTimeMillis();
-		System.out.println("UpdateRioMadeira.update()");
 		super.update();
 		time = System.currentTimeMillis() - time;
-		System.out.println("Updated RioMadeira in " + time + " millis");
+		logger.debug("Updated RioMadeira in " + time + " millis");
 	}
 
 	@Override
-	protected Alert predict(long timestamp, Map<Long, Station> stations) {
+	protected StationEntry predict(long timestamp, Map<Long, Station> stations) {
 		
 		Station stationMadeira = stations.get(MADEIRA_ID);
 		Station stationXapuri = stations.get(XAPURI_ID);
 		
-		Alert future = new Alert(stationMadeira, timestamp + DELTA);
+		StationEntry future = new StationEntry(stationMadeira, timestamp + DELTA);
 
-		Alert pastXapuri = repository.findOne(new AlertPk(timestamp - DELTA,  stationXapuri.id));
-		Alert pastPastXapuri = repository.findOne(new AlertPk(timestamp - 2*DELTA,  stationXapuri.id));
+		StationEntry pastXapuri = repository.findOne(new StationEntryPk(timestamp - DELTA,  stationXapuri.id));
+		StationEntry pastPastXapuri = repository.findOne(new StationEntryPk(timestamp - 2*DELTA,  stationXapuri.id));
 		
-		Alert current = repository.findOne(new AlertPk(timestamp,  stationMadeira.id));
-		Alert past = repository.findOne(new AlertPk(timestamp - DELTA,  stationMadeira.id));
+		StationEntry current = repository.findOne(new StationEntryPk(timestamp,  stationMadeira.id));
+		StationEntry past = repository.findOne(new StationEntryPk(timestamp - DELTA,  stationMadeira.id));
 		
 		if(!isAnyAlertNull(current, past, pastXapuri, pastPastXapuri)){
 			long calculated  = (long) (current.measured + 

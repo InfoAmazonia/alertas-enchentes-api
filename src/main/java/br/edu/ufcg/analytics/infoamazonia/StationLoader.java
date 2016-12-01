@@ -59,7 +59,7 @@ public class StationLoader implements ApplicationListener<ApplicationReadyEvent>
 		logger.info("Finished loading");
 	}
 
-	protected Station[] loadStationsFromFile(String fileName) throws IOException, JsonParseException, JsonMappingException {
+	public Station[] loadStationsFromFile(String fileName) throws IOException, JsonParseException, JsonMappingException {
 		return new ObjectMapper().readValue(new File(fileName), Station[].class);
 	}
 

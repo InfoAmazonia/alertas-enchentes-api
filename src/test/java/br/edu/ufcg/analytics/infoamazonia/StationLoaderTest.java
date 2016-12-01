@@ -3,12 +3,11 @@
  */
 package br.edu.ufcg.analytics.infoamazonia;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.io.IOException;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -26,20 +25,6 @@ public class StationLoaderTest {
 	private String emptyFile = "src/test/resources/empty.json";
 	private String noStationFile = "src/test/resources/no_station.json";
 	private String malformedFile = "src/test/resources/malformed.json";
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	/**
-	 * @throws java.lang.Exception
-	 */
-	@After
-	public void tearDown() throws Exception {
-	}
 
 	/**
 	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadStationsFromFile(java.lang.String)}.

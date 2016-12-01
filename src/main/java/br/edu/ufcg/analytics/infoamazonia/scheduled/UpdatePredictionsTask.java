@@ -30,10 +30,12 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import br.edu.ufcg.analytics.infoamazonia.model.Alert;
-import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Summary;
@@ -41,31 +43,37 @@ import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 
 public abstract class UpdatePredictionsTask {
 	
-	@Autowired
-	AlertRepository repository;
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
-	SummaryRepository summaryRepository;
+	protected StationEntryRepository repository;
 
 	@Autowired
-	StationRepository stationRepository;
+	protected SummaryRepository summaryRepository;
+
+	@Autowired
+	protected StationRepository stationRepository;
 
 	protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss");
 	protected DateTimeFormatter summaryFormatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
 	protected List<Long> dependencies;
 	protected Long stationId;
 
+	protected String stationCacheDir;
+
 	
 	public UpdatePredictionsTask(Long stationId, Long... dependenciesIds) {
 		this.stationId = stationId;
 		this.dependencies = Arrays.asList(dependenciesIds);
+		
+		this.stationCacheDir = "data/stations/";
 	}
 
 	public void update() throws FileNotFoundException, ParseException{
 		updateDependencies();
 		long time = System.currentTimeMillis();
 		populateStation(stationId);
-		System.out.println("Updated station " + stationId + " in " + (System.currentTimeMillis() - time) + " millis");
+		logger.debug("Updated station " + stationId + " in " + (System.currentTimeMillis() - time) + " millis");
 	}
 	
 	protected static <K, V> Map.Entry<K, V> dependency(K key, V value) {
@@ -91,7 +99,7 @@ public abstract class UpdatePredictionsTask {
 		}
 		
 
-		Alert latest = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+		StationEntry latest = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		System.out.println("latest: "+latest);
 		if(latest == null){
 			start = LocalDateTime.parse(station.oldestMeasureDate, formatter);
@@ -103,7 +111,7 @@ public abstract class UpdatePredictionsTask {
 		
 		System.out.println(start);
 		System.out.println(end);
-		List<MeasurementPair> measurements = new LinkedList<>();
+		List<Measurement> measurements = new LinkedList<>();
 		try {
 			long a = System.currentTimeMillis();
 			measurements = downloadData(station, start, end);
@@ -114,11 +122,11 @@ public abstract class UpdatePredictionsTask {
 		LocalDateTime last = null;
 		long a = System.currentTimeMillis();
 		long i = 0;
-		for (MeasurementPair measurementPair : measurements) {
+		for (Measurement measurementPair : measurements) {
 			i++;
 			Long timestamp = measurementPair.timestamp;
 			Long quota = measurementPair.quota;
-			repository.save(new Alert(station, timestamp, quota));
+			repository.save(new StationEntry(station, timestamp, quota));
 
 			if(station.predict){
 				if(i % 1000 == 0){
@@ -136,16 +144,9 @@ public abstract class UpdatePredictionsTask {
 
 	}
 
-	protected abstract Alert predict(long timestamp, Map<Long, Station> stationMap);
+	protected abstract StationEntry predict(long timestamp, Map<Long, Station> stationMap);
 	
-	private List<MeasurementPair> downloadData(Station station, LocalDateTime start, LocalDateTime end) throws ClientProtocolException, IOException {
-
-		File cacheFile = new File("data/stations/" + station.id);
-		if (repository.countByStation(station) == 0 && cacheFile.exists()) {
-			try (Scanner input = new Scanner(cacheFile);) {
-				return parseResults(input);
-			}
-		}
+	protected List<Measurement> downloadData(Station station, LocalDateTime start, LocalDateTime end) throws ClientProtocolException, IOException {
 
 		try (CloseableHttpClient httpclient = HttpClients.createDefault();) {
 
@@ -183,8 +184,19 @@ public abstract class UpdatePredictionsTask {
 		return new LinkedList<>();
 	}
 
-	private List<MeasurementPair> parseResults(Scanner input) {
-		List<MeasurementPair> result = new LinkedList<>();
+	protected List<Measurement> getFromCache(Station station) throws ClientProtocolException, IOException {
+
+		File cacheFile = new File(stationCacheDir + station.id);
+		if (repository.countByStation(station) == 0 && cacheFile.exists()) {
+			try (Scanner input = new Scanner(cacheFile);) {
+				return parseResults(input);
+			}
+		}
+		return new LinkedList<>();
+	}
+
+	private List<Measurement> parseResults(Scanner input) {
+		List<Measurement> result = new LinkedList<>();
 		if (input.hasNextLine() && input.nextLine().contains("Data e Hora")) {
 			while (input.hasNextLine()) {
 				String line = input.nextLine().trim();
@@ -193,7 +205,7 @@ public abstract class UpdatePredictionsTask {
 
 				Long timestamp = now.toEpochSecond(ZoneOffset.of("-3"));
 				Long quota = tokens.length == 3 ? Math.round(Double.valueOf(tokens[2])) : null;
-				result.add(new MeasurementPair(timestamp, quota));
+				result.add(new Measurement(timestamp, quota));
 			}
 		}
 		return result;
@@ -203,14 +215,14 @@ public abstract class UpdatePredictionsTask {
 		
 		LocalDateTime start = timestamp.truncatedTo(ChronoUnit.DAYS);
 		LocalDateTime end = start.plusDays(1);
-		List<Alert> alerts = repository.findAllByStationAndTimestampBetween(station, start.toEpochSecond(ZoneOffset.of("-3")), end.toEpochSecond(ZoneOffset.of("-3")));
+		List<StationEntry> alerts = repository.findAllByStationAndTimestampBetween(station, start.toEpochSecond(ZoneOffset.of("-3")), end.toEpochSecond(ZoneOffset.of("-3")));
 		OptionalDouble average = alerts.stream().filter(a -> a.measured != null).mapToLong(a -> a.measured).average();
 		Long averageMeasurement = average.isPresent()? Math.round(average.getAsDouble()): null;
 		summaryRepository.save(new Summary(station, start.format(summaryFormatter), averageMeasurement));
 	}
 
-	protected boolean isAnyAlertNull(Alert... alerts){
-		for (Alert alert : alerts) {
+	protected boolean isAnyAlertNull(StationEntry... alerts){
+		for (StationEntry alert : alerts) {
 			if(alert == null || alert.measured == null){
 				return true;
 			}
