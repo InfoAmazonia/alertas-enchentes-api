@@ -6,11 +6,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 @Entity
 public class Station implements Serializable{
 	
+	public static final String STATUS_ENCHENTE = "INUNDACAO";
+	public static final String STATUS_ALERTA = "ALERTA";
+	public static final String STATUS_NORMAL = "NORMAL";
+	public static final String STATUS_INDISPONIVEL = "INDISPONIVEL";
+
 	/**
 	 * 
 	 */
@@ -26,14 +29,11 @@ public class Station implements Serializable{
 	
 	public Long warningThreshold;
 	public Long floodThreshold;
-	@JsonIgnore
+
 	public String oldestMeasureDate;
-	@JsonIgnore
 	public Boolean predict;
-	@JsonIgnore
 	public Long lstStation;
 	@Column(length=10000)
-	@JsonIgnore
 	public String viewState;
 
 	public int bacia;
@@ -61,14 +61,14 @@ public class Station implements Serializable{
 
 	public String calculateStatus(Long quota) {
 		if(quota == null)
-			return "INDISPONIVEL";
+			return STATUS_INDISPONIVEL;
 		if(quota < warningThreshold)
-			return "NORMAL";
+			return STATUS_NORMAL;
 		if (warningThreshold <= quota && quota < floodThreshold)
-			return "ALERTA";
+			return STATUS_ALERTA;
 		if (floodThreshold <= quota)
-			return "INUNDACAO";
-		return "INDISPONIVEL";
+			return STATUS_ENCHENTE;
+		return STATUS_INDISPONIVEL;
 	}
 
 

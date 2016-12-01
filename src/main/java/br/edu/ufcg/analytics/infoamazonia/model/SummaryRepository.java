@@ -11,4 +11,6 @@ import org.springframework.data.repository.CrudRepository;
 public interface SummaryRepository extends CrudRepository<Summary, SummaryPk> {
 	
 	List<Summary> findAllByStationOrderByTimestampAsc(Station station);
+
+	long countByStation(Station station);
 }
