@@ -41,11 +41,11 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 	@Override
 	@Transactional
 	public void update() throws FileNotFoundException, ParseException {
-		logger.debug("UpdateRioMadeira.update()");
+		logger.info("Update Rio Madeira ");
 		long time = System.currentTimeMillis();
 		super.update();
 		time = System.currentTimeMillis() - time;
-		logger.debug("Updated RioMadeira in " + time + " millis");
+		logger.info("Updated RioMadeira in " + time + " millis");
 	}
 
 	@Override

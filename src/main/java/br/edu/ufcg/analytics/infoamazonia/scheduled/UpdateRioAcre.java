@@ -40,7 +40,7 @@ public class UpdateRioAcre extends UpdatePredictionsTask {
 		long time = System.currentTimeMillis();
 		super.update();
 		time = System.currentTimeMillis() - time;
-		logger.debug("Updated Rio Acre in " + time + " millis");
+		logger.info("Updated Rio Acre in " + time + " millis");
 	}
 
 	@Override

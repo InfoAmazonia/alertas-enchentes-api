@@ -1,0 +1,1 @@
+alter table station add column attention_threshold bigint;

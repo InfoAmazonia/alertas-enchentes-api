@@ -66,20 +66,14 @@ public class StationController {
 		}
 		
 		StationEntry lastMeasurement = stationEntryRepo.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+		lastMeasurement.fillStatus();
 		if(timestamp == -1){
-			if(lastMeasurement == null){
-				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-			}
-			timestamp = lastMeasurement.timestamp;
+			timestamp = System.currentTimeMillis()/1000;
 		}
 
 		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampBetween(station, timestamp-300, timestamp + 43200);
 		for (StationEntry alert : alerts) {
 			alert.fillStatus();
-		}
-		
-		if(alerts.get(0).measured != null){
-			lastMeasurement = alerts.get(0); 
 		}
 		
 		return new ResponseEntity<>(new Result<StationEntry>(station, alerts, lastMeasurement) , HttpStatus.OK);

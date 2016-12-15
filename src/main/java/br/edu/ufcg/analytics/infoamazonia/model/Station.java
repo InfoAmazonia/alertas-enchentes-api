@@ -9,11 +9,6 @@ import javax.persistence.Id;
 @Entity
 public class Station implements Serializable{
 	
-	public static final String STATUS_ENCHENTE = "INUNDACAO";
-	public static final String STATUS_ALERTA = "ALERTA";
-	public static final String STATUS_NORMAL = "NORMAL";
-	public static final String STATUS_INDISPONIVEL = "INDISPONIVEL";
-
 	/**
 	 * 
 	 */
@@ -27,9 +22,6 @@ public class Station implements Serializable{
 	public String riverName;
 	public String cityName;
 	
-	public Long warningThreshold;
-	public Long floodThreshold;
-
 	public String oldestMeasureDate;
 	public Boolean predict;
 	public Long lstStation;
@@ -39,17 +31,22 @@ public class Station implements Serializable{
 	public int bacia;
 	public int subbacia;
 	
+	public Long warningThreshold;
+	public Long attentionThreshold;
+	public Long floodThreshold;
+	
 	public Station() {
 		
 	}
 	
-	public Station(long id, String name, String riverName, String cityName, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int bacia, int subbacia) {
+	public Station(long id, String name, String riverName, String cityName, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int bacia, int subbacia, Long attentionThreshold) {
 		this();
 		this.name = name;
 		this.id = id;
 		this.riverName = riverName;
 		this.cityName = cityName;
-		this.warningThreshold = warningThreshold;
+		this.attentionThreshold = warningThreshold;
+		this.warningThreshold = attentionThreshold;
 		this.floodThreshold = floodThreshold;
 		this.oldestMeasureDate = oldestMeasureDate;
 		this.predict = predict;
@@ -59,16 +56,8 @@ public class Station implements Serializable{
 		this.subbacia = subbacia;
 	}
 
-	public String calculateStatus(Long quota) {
-		if(quota == null)
-			return STATUS_INDISPONIVEL;
-		if(quota < warningThreshold)
-			return STATUS_NORMAL;
-		if (warningThreshold <= quota && quota < floodThreshold)
-			return STATUS_ALERTA;
-		if (floodThreshold <= quota)
-			return STATUS_ENCHENTE;
-		return STATUS_INDISPONIVEL;
+	public RiverStatus calculateStatus(Long quota) {
+		return RiverStatus.get(quota, attentionThreshold, warningThreshold, floodThreshold);
 	}
 
 
@@ -96,7 +85,6 @@ public class Station implements Serializable{
 
 	@Override
 	public String toString() {
-		return "Station [name=" + name + ", id=" + id + ", warningThreshold=" + warningThreshold + ", floodThreshold="
-				+ floodThreshold + "]";
+		return "Station [name=" + name + ", id=" + id + "]";
 	}
 }

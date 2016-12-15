@@ -31,7 +31,7 @@ public class Summary implements Serializable {
 	public Long measured;
 
 	@Transient
-	public String measuredStatus;
+	public RiverStatus measuredStatus;
 	
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
 	@JoinColumn(name = "station_id", referencedColumnName = "id", insertable = false, updatable = false)
@@ -49,7 +49,6 @@ public class Summary implements Serializable {
 		this.timestamp = timestamp;
 		this.id = new SummaryPk(timestamp, station.id);
 		this.measured = measured;
-		this.measuredStatus = "";
 	}
 
 	public Summary(Station station, String timestamp) {

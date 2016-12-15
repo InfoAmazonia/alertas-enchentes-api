@@ -42,6 +42,7 @@ public class StationLoaderTest {
 		assertEquals("XAPURI - PCD", xapuri.name);
 		assertEquals("RIO ACRE", xapuri.riverName);
 		assertEquals("XAPURI", xapuri.cityName);
+		assertEquals(-1L, xapuri.attentionThreshold.longValue());
 		assertEquals(-1L, xapuri.warningThreshold.longValue());
 		assertEquals(-1L, xapuri.floodThreshold.longValue());
 		assertEquals("01/12/201400:00:00", xapuri.oldestMeasureDate);

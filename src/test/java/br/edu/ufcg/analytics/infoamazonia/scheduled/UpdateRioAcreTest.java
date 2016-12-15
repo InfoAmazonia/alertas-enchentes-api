@@ -254,4 +254,12 @@ public class UpdateRioAcreTest {
 		assertNull(latest.calculated);
 		assertNull(latest.predicted);
 	}
+	
+	public void testAlertScenarioD() throws FileNotFoundException, ParseException{
+		update.stationCacheDir = "src/test/resources/" + rioBranco.id + "_ok";
+		update.update();
+		
+		update.stationCacheDir = "src/test/resources/" + rioBranco.id + "_null_dependency_pastentry";
+		update.update();
+	}
 }

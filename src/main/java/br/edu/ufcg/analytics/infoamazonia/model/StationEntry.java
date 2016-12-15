@@ -38,10 +38,10 @@ public class StationEntry implements Serializable {
 	public Long predicted;
 	
 	@Transient
-	public String measuredStatus;
+	public RiverStatus measuredStatus;
 	
 	@Transient
-	public String predictedStatus;
+	public RiverStatus predictedStatus;
 	
 	@ManyToOne(optional=false, fetch=FetchType.EAGER)
 	@JoinColumn(name = "station_id", referencedColumnName = "id", insertable = false, updatable = false)
