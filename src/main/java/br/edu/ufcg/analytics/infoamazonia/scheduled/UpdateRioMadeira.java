@@ -18,18 +18,23 @@ import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
 public class UpdateRioMadeira extends UpdatePredictionsTask {
-
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final long MADEIRA_ID = 13600002L;
-	private static final long XAPURI_ID = 13551000L;
+	private static final long PORTOVELHO_ID = 15400000;
+	private static final long ABUNA_ID = 15320002;
+	private static final long MORADA_ID = 15326000;
+	private static final long GUAJARA_ID = 15250000;
+	
 	private static final long RATE = 900000;
-	private static final long DELTA = Duration.ofHours(12).getSeconds();
-	private static final double ALPHA = 0.717395738210093;
-	private static final double BETA = 0.151170920309919;
+	private static final long DELTA = Duration.ofDays(1).getSeconds();
+	private static final double A_1 = -0.115;
+	private static final double A_2 = 0.994;
+	private static final double A_3 = -0.014;
+	private static final double A_4 = 0.023;
 	
 	public UpdateRioMadeira() {
-		super(MADEIRA_ID, XAPURI_ID);
+		super(PORTOVELHO_ID, ABUNA_ID, MORADA_ID, GUAJARA_ID);
 	}
 
 	@Scheduled(initialDelay=1000, fixedRate = RATE)
@@ -46,27 +51,37 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 	@Override
 	protected StationEntry predict(long timestamp, Map<Long, Station> stations) {
 		
-		Station stationMadeira = stations.get(MADEIRA_ID);
-		Station stationXapuri = stations.get(XAPURI_ID);
+		Station portoVelho = stations.get(PORTOVELHO_ID);
+		Station abuna = stations.get(ABUNA_ID);
+		Station morada = stations.get(MORADA_ID);
+		Station guajara = stations.get(GUAJARA_ID);
 		
-		StationEntry future = new StationEntry(stationMadeira, timestamp + DELTA);
+		StationEntry future = new StationEntry(portoVelho, timestamp + DELTA);
+		
+		StationEntry current = repository.findOne(new StationEntryPk(timestamp, portoVelho.id));
+		StationEntry past = repository.findOne(new StationEntryPk(timestamp - DELTA, portoVelho.id));
 
-		StationEntry pastXapuri = repository.findOne(new StationEntryPk(timestamp - DELTA,  stationXapuri.id));
-		StationEntry pastPastXapuri = repository.findOne(new StationEntryPk(timestamp - 2*DELTA,  stationXapuri.id));
-		
-		StationEntry current = repository.findOne(new StationEntryPk(timestamp,  stationMadeira.id));
-		StationEntry past = repository.findOne(new StationEntryPk(timestamp - DELTA,  stationMadeira.id));
-		
-		if(!isAnyAlertNull(current, past, pastXapuri, pastPastXapuri)){
+		StationEntry currentAbuna = repository.findOne(new StationEntryPk(timestamp, abuna.id));
+		StationEntry pastAbuna = repository.findOne(new StationEntryPk(timestamp - DELTA, abuna.id));
+
+		StationEntry currentMorada = repository.findOne(new StationEntryPk(timestamp - DELTA, morada.id));
+		StationEntry pastMorada = repository.findOne(new StationEntryPk(timestamp - 2*DELTA, morada.id));
+
+		StationEntry currentGuajara = repository.findOne(new StationEntryPk(timestamp - 2*DELTA, guajara.id));
+		StationEntry pastGuajara = repository.findOne(new StationEntryPk(timestamp - 4*DELTA, guajara.id));
+
+		if (!isAnyAlertNull(current, past, currentAbuna, pastAbuna, currentMorada, pastMorada, currentGuajara, pastGuajara)) {
+
 			long calculated  = (long) (current.measured + 
-					ALPHA * (current.measured - past.measured) + 
-					BETA * (pastXapuri.measured - pastPastXapuri.measured));
-			long predicted = calculated + ((current.calculated == null || current.calculated == 0) ? 0
-					: (current.measured - current.calculated));
+					A_1 * (current.measured - past.measured) + 
+					A_2 * (currentAbuna.measured - pastAbuna.measured) + 
+					A_3 * (currentMorada.measured - pastMorada.measured) + 
+					A_4 * (currentGuajara.measured - pastGuajara.measured));
+			long predicted = calculated + (current.calculated == 0?0:(current.measured - current.calculated));
 
 			future.registerPrediction(calculated, predicted);
 		}else{
-			future.registerPrediction(null, null);
+			future.registerPrediction(0L, 0L);
 		}
 		
 		return future;

@@ -65,14 +65,13 @@ public abstract class UpdatePredictionsTask {
 	public UpdatePredictionsTask(Long stationId, Long... dependenciesIds) {
 		this.stationId = stationId;
 		this.dependencies = Arrays.asList(dependenciesIds);
-		
-		this.stationCacheDir = "data/stations/";
 	}
 
 	public void update() throws FileNotFoundException, ParseException{
 		updateDependencies();
 		long time = System.currentTimeMillis();
 		populateStation(stationId);
+		this.stationCacheDir = null;
 		logger.debug("Updated station " + stationId + " in " + (System.currentTimeMillis() - time) + " millis");
 	}
 	
@@ -88,6 +87,7 @@ public abstract class UpdatePredictionsTask {
 	
 	private void populateStation(Long id) {
 		
+		logger.debug("station: "+id);
 		Station station = stationRepository.findOne(id);
 
 		StationEntry latest = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
@@ -98,7 +98,7 @@ public abstract class UpdatePredictionsTask {
 			long a = System.currentTimeMillis();
 			List<Measurement> measurements = getMeasurements(station, latest);
 			logger.debug("READ " + id + " DATA in " + (System.currentTimeMillis() - a) + "ms");
-
+			logger.info("linhas: " + measurements.size());
 			a = System.currentTimeMillis();
 			updateData(station, measurements);
 			logger.debug("INSERTED " + id + " DATA in " + (System.currentTimeMillis() - a) + "ms");
@@ -111,19 +111,13 @@ public abstract class UpdatePredictionsTask {
 	protected List<Measurement> getMeasurements(Station station, StationEntry latest) throws ClientProtocolException, IOException{
 		LocalDateTime start;
 		LocalDateTime end;
-
-		if(latest == null){ // empty
-			List<Measurement> measurements = getFromCache(station);
-			if(measurements != null){ // with cache
-				return measurements;
-			}
-			start = LocalDateTime.parse(station.oldestMeasureDate, formatter);
-			end = LocalDateTime.now().plusDays(1);
-		}else{ // otherwise
-			start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-			end = LocalDateTime.now().plusDays(1);
-
+		
+		if(this.stationCacheDir != null){
+			return getFromCache(station);
 		}
+
+		start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
+		end = LocalDateTime.now().plusDays(1);
 		return downloadData(station, start, end);
 	}
 
@@ -161,13 +155,11 @@ public abstract class UpdatePredictionsTask {
 	
 	protected List<Measurement> getFromCache(Station station) throws ClientProtocolException, IOException {
 
-		File cacheFile = new File(stationCacheDir + station.id);
-		if (repository.countByStation(station) == 0 && cacheFile.exists()) {
-			try (Scanner input = new Scanner(cacheFile);) {
-				return parseResults(input);
-			}
+		File cacheFile = new File(stationCacheDir + "/" + station.id);
+		logger.info("Cache file: " + cacheFile.getAbsolutePath());
+		try (Scanner input = new Scanner(cacheFile);) {
+			return parseResults(input);
 		}
-		return new LinkedList<>();
 	}
 
 	protected List<Measurement> downloadData(Station station, LocalDateTime start, LocalDateTime end) throws ClientProtocolException, IOException {

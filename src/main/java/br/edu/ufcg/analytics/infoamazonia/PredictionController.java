@@ -29,9 +29,14 @@ public class PredictionController {
 		private static final long serialVersionUID = -1644121143775945570L;
 		public Station info;
 		public List<T> data;
-		public PredictionInfo(Station info, List<T> data) {
+		public T last;
+		public PredictionInfo(Station info, List<T> data, T last) {
 			this.info = info;
 			this.data = data;
+			this.last = last;
+		}
+		public PredictionInfo(Station info, List<T> data) {
+			this(info, data, null);
 		}
 	}
 
@@ -62,12 +67,16 @@ public class PredictionController {
 			timestamp = lastMeasurement.timestamp;
 		}
 
-		List<StationEntry> alerts = repository.findAllByStationAndTimestampBetween(station, timestamp, timestamp + 43200);
+		List<StationEntry> alerts = repository.findAllByStationAndTimestampBetween(station, timestamp-300, timestamp + 43200);
 		for (StationEntry alert : alerts) {
 			alert.fillStatus();
 		}
 		
-		return new ResponseEntity<>(new PredictionInfo<StationEntry>(station, alerts) , HttpStatus.OK);
+		if(alerts.get(0).measured != null){
+			lastMeasurement = alerts.get(0); 
+		}
+		
+		return new ResponseEntity<>(new PredictionInfo<StationEntry>(station, alerts, lastMeasurement) , HttpStatus.OK);
 	}
 
 	@RequestMapping("/{id}/history")
