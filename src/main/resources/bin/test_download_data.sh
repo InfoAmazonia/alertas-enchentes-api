@@ -2,16 +2,18 @@
 
 output_dir=$1
 
-if [ "$(uname)" == "Darwin" ]; then
+arch_name=$(uname -s)
+
+if [ "${arch_name}" == "Darwin" ]; then
 	command -v gdate >/dev/null 2>&1 || { echo >&2 "I require gdate but it's not installed. Try 'brew install coreutils'"; exit 1; }
 	dayini=$(gdate --date="1 day ago" +%d)
 	monthini=$(gdate --date="1 day ago" +%m)
 	yearini=$(gdate --date="1 day ago" +%Y)
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+elif [ "${arch_name:0:5}" == "Linux" ]; then
 	dayini=$(date --date="1 day ago" +%d)
 	monthini=$(date --date="1 day ago" +%m)
 	yearini=$(date --date="1 day ago" +%Y)
-elif [ "$(expr substr $(uname -s) 1 10)" == "MINGW32_NT" ]; then
+elif [ "${arch_name:0:10}" == "MINGW32_NT" ]; then
 	echo >&2 "Unsupported architecture"; exit 1;
 fi
 
