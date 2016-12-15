@@ -18,12 +18,6 @@
 			<source>LICENSE</source>
 		</file>
 	</files>
-<!-- 	<dependencySets> -->
-<!-- 		<dependencySet> -->
-<!-- 			<outputDirectory>/lib</outputDirectory> -->
-<!-- 			<scope>runtime</scope> -->
-<!-- 		</dependencySet> -->
-<!-- 	</dependencySets> -->
 	<fileSets>
 		<fileSet>
 			<outputDirectory></outputDirectory>
@@ -37,6 +31,13 @@
 			<directory>src/main/resources</directory>
 			<includes>
 			<include>db</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<outputDirectory></outputDirectory>
+			<directory>src/main/resources</directory>
+			<includes>
+			<include>data</include>
 			</includes>
 		</fileSet>
 		<fileSet>
