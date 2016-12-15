@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 /**
  * @author Ricardo Ara&eacute;jo Santos - ricoaraujosantos@gmail.com
  */
-public interface AlertRepository extends CrudRepository<Alert, AlertPk> {
+public interface AlertRepository extends CrudRepository<Alert, EntryPk> {
 	
 	Alert findFirstByStationAndTimestamp(Station station, Long timestamp);
 

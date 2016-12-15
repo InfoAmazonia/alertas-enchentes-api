@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
-import br.edu.ufcg.analytics.infoamazonia.model.StationEntryPk;
+import br.edu.ufcg.analytics.infoamazonia.model.EntryPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
@@ -58,17 +58,17 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 		
 		StationEntry future = new StationEntry(portoVelho, timestamp + DELTA);
 		
-		StationEntry current = repository.findOne(new StationEntryPk(timestamp, portoVelho.id));
-		StationEntry past = repository.findOne(new StationEntryPk(timestamp - DELTA, portoVelho.id));
+		StationEntry current = repository.findOne(new EntryPk(timestamp, portoVelho.id));
+		StationEntry past = repository.findOne(new EntryPk(timestamp - DELTA, portoVelho.id));
 
-		StationEntry currentAbuna = repository.findOne(new StationEntryPk(timestamp, abuna.id));
-		StationEntry pastAbuna = repository.findOne(new StationEntryPk(timestamp - DELTA, abuna.id));
+		StationEntry currentAbuna = repository.findOne(new EntryPk(timestamp, abuna.id));
+		StationEntry pastAbuna = repository.findOne(new EntryPk(timestamp - DELTA, abuna.id));
 
-		StationEntry currentMorada = repository.findOne(new StationEntryPk(timestamp - DELTA, morada.id));
-		StationEntry pastMorada = repository.findOne(new StationEntryPk(timestamp - 2*DELTA, morada.id));
+		StationEntry currentMorada = repository.findOne(new EntryPk(timestamp - DELTA, morada.id));
+		StationEntry pastMorada = repository.findOne(new EntryPk(timestamp - 2*DELTA, morada.id));
 
-		StationEntry currentGuajara = repository.findOne(new StationEntryPk(timestamp - 2*DELTA, guajara.id));
-		StationEntry pastGuajara = repository.findOne(new StationEntryPk(timestamp - 4*DELTA, guajara.id));
+		StationEntry currentGuajara = repository.findOne(new EntryPk(timestamp - 2*DELTA, guajara.id));
+		StationEntry pastGuajara = repository.findOne(new EntryPk(timestamp - 4*DELTA, guajara.id));
 
 		if (!isAnyAlertNull(current, past, currentAbuna, pastAbuna, currentMorada, pastMorada, currentGuajara, pastGuajara)) {
 

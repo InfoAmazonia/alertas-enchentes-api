@@ -21,7 +21,7 @@ public class Alert implements Serializable {
 
     @EmbeddedId
     @JsonIgnore
-    public AlertPk id;
+    public EntryPk id;
 
 	@Column(name="timestamp", insertable=false, updatable=false)
 	public Long timestamp;
@@ -44,7 +44,7 @@ public class Alert implements Serializable {
 		this.station = station;
 		this.timestamp = timestamp;
 		this.message = message;
-		this.id = new AlertPk(timestamp, station.id);
+		this.id = new EntryPk(timestamp, station.id);
 	}
 
 	@Override

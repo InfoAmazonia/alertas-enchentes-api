@@ -22,7 +22,7 @@ public class StationEntry implements Serializable {
 
     @EmbeddedId
     @JsonIgnore
-    public StationEntryPk id;
+    public EntryPk id;
 
 	@Column(name="timestamp", insertable=false, updatable=false)
 	public Long timestamp;
@@ -57,7 +57,7 @@ public class StationEntry implements Serializable {
 		super();
 		this.station = station;
 		this.timestamp = timestamp;
-		this.id = new StationEntryPk(timestamp, station.id);
+		this.id = new EntryPk(timestamp, station.id);
 		this.measured = measured;
 		this.calculated = calculated;
 		this.predicted = predicted;
@@ -71,7 +71,7 @@ public class StationEntry implements Serializable {
 		this(station, timestamp, null, null, null);
 	}
 
-	public StationEntryPk getId() {
+	public EntryPk getId() {
 		return id;
 	}
 

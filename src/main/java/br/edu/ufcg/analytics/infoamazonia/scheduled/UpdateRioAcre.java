@@ -13,7 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
-import br.edu.ufcg.analytics.infoamazonia.model.StationEntryPk;
+import br.edu.ufcg.analytics.infoamazonia.model.EntryPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
@@ -51,11 +51,11 @@ public class UpdateRioAcre extends UpdatePredictionsTask {
 		
 		StationEntry future = new StationEntry(stationRioBranco, timestamp + DELTA);
 
-		StationEntry pastXapuri = repository.findOne(new StationEntryPk(timestamp - DELTA,  stationXapuri.id));
-		StationEntry pastPastXapuri = repository.findOne(new StationEntryPk(timestamp - 2*DELTA,  stationXapuri.id));
+		StationEntry pastXapuri = repository.findOne(new EntryPk(timestamp - DELTA,  stationXapuri.id));
+		StationEntry pastPastXapuri = repository.findOne(new EntryPk(timestamp - 2*DELTA,  stationXapuri.id));
 		
-		StationEntry current = repository.findOne(new StationEntryPk(timestamp,  stationRioBranco.id));
-		StationEntry past = repository.findOne(new StationEntryPk(timestamp - DELTA,  stationRioBranco.id));
+		StationEntry current = repository.findOne(new EntryPk(timestamp,  stationRioBranco.id));
+		StationEntry past = repository.findOne(new EntryPk(timestamp - DELTA,  stationRioBranco.id));
 		
 		if(!isAnyAlertNull(current, past, pastXapuri, pastPastXapuri)){
 			long calculated  = (long) (current.measured + 

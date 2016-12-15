@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 /**
  * @author Ricardo Ara&eacute;jo Santos - ricoaraujosantos@gmail.com
  */
-public interface StationEntryRepository extends CrudRepository<StationEntry, StationEntryPk> {
+public interface StationEntryRepository extends CrudRepository<StationEntry, EntryPk> {
 	
 	StationEntry findFirstByStationAndTimestamp(Station station, Long timestamp);
 

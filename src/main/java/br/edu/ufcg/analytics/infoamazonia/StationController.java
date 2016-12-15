@@ -22,35 +22,35 @@ import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 @CrossOrigin
 @RestController
 @RequestMapping("/station")
-public class PredictionController {
+public class StationController {
 	
 
-	class PredictionInfo<T extends Serializable> implements Serializable{
+	class Result<T extends Serializable> implements Serializable{
 		private static final long serialVersionUID = -1644121143775945570L;
 		public Station info;
 		public List<T> data;
 		public T last;
-		public PredictionInfo(Station info, List<T> data, T last) {
+		public Result(Station info, List<T> data, T last) {
 			this.info = info;
 			this.data = data;
 			this.last = last;
 		}
-		public PredictionInfo(Station info, List<T> data) {
+		public Result(Station info, List<T> data) {
 			this(info, data, null);
 		}
 	}
 
 	@Autowired
-	StationEntryRepository repository;
+	private StationEntryRepository repository;
 
 	@Autowired
-	SummaryRepository summaryRepository;
+	private SummaryRepository summaryRepository;
 
 	@Autowired
-	StationRepository stationRepository;
+	private StationRepository stationRepository;
 
 	@RequestMapping("/{id}/prediction")
-	public ResponseEntity<PredictionInfo<StationEntry>> getRecomendationsFor(@PathVariable Long id,
+	public ResponseEntity<Result<StationEntry>> getRecomendationsFor(@PathVariable Long id,
 			@RequestParam(value = "timestamp", defaultValue = "-1") Long timestamp) {
 		
 		Station station = stationRepository.findOne(id);
@@ -76,11 +76,11 @@ public class PredictionController {
 			lastMeasurement = alerts.get(0); 
 		}
 		
-		return new ResponseEntity<>(new PredictionInfo<StationEntry>(station, alerts, lastMeasurement) , HttpStatus.OK);
+		return new ResponseEntity<>(new Result<StationEntry>(station, alerts, lastMeasurement) , HttpStatus.OK);
 	}
 
 	@RequestMapping("/{id}/history")
-	public ResponseEntity<PredictionInfo<Summary>> getHistory(@PathVariable Long id) {
+	public ResponseEntity<Result<Summary>> getHistory(@PathVariable Long id) {
 		
 		Station station = stationRepository.findOne(id);
 		
@@ -93,7 +93,7 @@ public class PredictionController {
 			summary.fillStatus();
 		}
 		
-		return new ResponseEntity<>(new PredictionInfo<Summary>(station, history) , HttpStatus.OK);
+		return new ResponseEntity<>(new Result<Summary>(station, history) , HttpStatus.OK);
 	}
 
 }
