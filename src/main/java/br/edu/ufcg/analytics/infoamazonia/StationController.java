@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.edu.ufcg.analytics.infoamazonia.model.Alert;
+import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
@@ -24,6 +26,18 @@ import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 @RequestMapping("/station")
 public class StationController {
 	
+
+	@Autowired
+	private StationEntryRepository stationEntryRepo;
+
+	@Autowired
+	private SummaryRepository summaryRepo;
+
+	@Autowired
+	private StationRepository stationRepo;
+
+	@Autowired
+	private AlertRepository alertRepo;
 
 	class Result<T extends Serializable> implements Serializable{
 		private static final long serialVersionUID = -1644121143775945570L;
@@ -40,26 +54,18 @@ public class StationController {
 		}
 	}
 
-	@Autowired
-	private StationEntryRepository repository;
-
-	@Autowired
-	private SummaryRepository summaryRepository;
-
-	@Autowired
-	private StationRepository stationRepository;
 
 	@RequestMapping("/{id}/prediction")
 	public ResponseEntity<Result<StationEntry>> getRecomendationsFor(@PathVariable Long id,
 			@RequestParam(value = "timestamp", defaultValue = "-1") Long timestamp) {
 		
-		Station station = stationRepository.findOne(id);
+		Station station = stationRepo.findOne(id);
 		
 		if (station == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
-		StationEntry lastMeasurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+		StationEntry lastMeasurement = stationEntryRepo.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		if(timestamp == -1){
 			if(lastMeasurement == null){
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -67,7 +73,7 @@ public class StationController {
 			timestamp = lastMeasurement.timestamp;
 		}
 
-		List<StationEntry> alerts = repository.findAllByStationAndTimestampBetween(station, timestamp-300, timestamp + 43200);
+		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampBetween(station, timestamp-300, timestamp + 43200);
 		for (StationEntry alert : alerts) {
 			alert.fillStatus();
 		}
@@ -82,18 +88,32 @@ public class StationController {
 	@RequestMapping("/{id}/history")
 	public ResponseEntity<Result<Summary>> getHistory(@PathVariable Long id) {
 		
-		Station station = stationRepository.findOne(id);
+		Station station = stationRepo.findOne(id);
 		
 		if (station == null) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
-		List<Summary> history = summaryRepository.findAllByStationOrderByTimestampAsc(station);
+		List<Summary> history = summaryRepo.findAllByStationOrderByTimestampAsc(station);
 		for (Summary summary : history) {
 			summary.fillStatus();
 		}
 		
 		return new ResponseEntity<>(new Result<Summary>(station, history) , HttpStatus.OK);
+	}
+
+	@RequestMapping("/{id}/alert")
+	public ResponseEntity<Alert> getAlert(@PathVariable Long id) {
+		
+		Station station = stationRepo.findOne(id);
+		
+		if (station == null) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		Alert alert = alertRepo.findFirstByStationOrderByTimestampDesc(station);
+		
+		return new ResponseEntity<>(alert, HttpStatus.OK);
 	}
 
 }
