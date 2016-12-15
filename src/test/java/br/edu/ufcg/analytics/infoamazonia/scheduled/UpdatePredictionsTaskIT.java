@@ -47,7 +47,7 @@ public class UpdatePredictionsTaskIT {
 	 * @throws ClientProtocolException 
 	 */
 	@Theory
-	public void thereIsPublishedDataForStationThisWeek(Station station) throws ClientProtocolException, IOException {
+	public void thereIsPublishedDataForStation(Station station) throws ClientProtocolException, IOException {
 		
 		UpdatePredictionsTask updatePredictionsTask = new UpdatePredictionsTask(station.id){
 			@Override
@@ -56,8 +56,8 @@ public class UpdatePredictionsTaskIT {
 			}
 		};
 		
-		LocalDateTime start = LocalDateTime.now().minusDays(7);
-		LocalDateTime end = LocalDateTime.now().plusDays(1);
+		LocalDateTime start = LocalDateTime.of(2016, 10, 1, 0, 0);
+		LocalDateTime end = LocalDateTime.of(2016, 10, 3, 0, 0);
 
 		List<Measurement> measurements = updatePredictionsTask.downloadData(station, start, end);
 		assertNotNull(measurements);

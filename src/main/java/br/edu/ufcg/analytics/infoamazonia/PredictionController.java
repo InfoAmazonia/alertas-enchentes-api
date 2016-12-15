@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
+import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Summary;
 import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
-import br.edu.ufcg.analytics.infoamazonia.model.Station;
-import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 
 @CrossOrigin
 @RestController

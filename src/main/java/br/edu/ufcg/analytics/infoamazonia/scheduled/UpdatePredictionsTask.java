@@ -34,9 +34,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
-import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Summary;
 import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
@@ -88,39 +88,54 @@ public abstract class UpdatePredictionsTask {
 	
 	private void populateStation(Long id) {
 		
+		Station station = stationRepository.findOne(id);
+
+		StationEntry latest = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+		logger.debug("latest: "+latest);
+		
+
+		try {
+			long a = System.currentTimeMillis();
+			List<Measurement> measurements = getMeasurements(station, latest);
+			logger.debug("READ " + id + " DATA in " + (System.currentTimeMillis() - a) + "ms");
+
+			a = System.currentTimeMillis();
+			updateData(station, measurements);
+			logger.debug("INSERTED " + id + " DATA in " + (System.currentTimeMillis() - a) + "ms");
+		} catch (IOException e) {
+			logger.error("Problem updating data for station " + station.id, e);
+		}
+
+	}
+	
+	protected List<Measurement> getMeasurements(Station station, StationEntry latest) throws ClientProtocolException, IOException{
 		LocalDateTime start;
 		LocalDateTime end;
+
+		if(latest == null){ // empty
+			List<Measurement> measurements = getFromCache(station);
+			if(measurements != null){ // with cache
+				return measurements;
+			}
+			start = LocalDateTime.parse(station.oldestMeasureDate, formatter);
+			end = LocalDateTime.now().plusDays(1);
+		}else{ // otherwise
+			start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
+			end = LocalDateTime.now().plusDays(1);
+
+		}
+		return downloadData(station, start, end);
+	}
+
+	private void updateData(Station station, List<Measurement> measurements) {
 		
-		Station station = stationRepository.findOne(id);
 		Map<Long, Station> stationMap = new HashMap<>();
-		stationMap.put(id, station);
+		stationMap.put(station.id, station);
 		for (Long dependencyId : dependencies) {
 			stationMap.put(dependencyId, stationRepository.findOne(dependencyId));
 		}
-		
 
-		StationEntry latest = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
-		System.out.println("latest: "+latest);
-		if(latest == null){
-			start = LocalDateTime.parse(station.oldestMeasureDate, formatter);
-			end = LocalDateTime.now().plusDays(1);
-		}else{
-			start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-			end = LocalDateTime.now().plusDays(1);
-		}
-		
-		System.out.println(start);
-		System.out.println(end);
-		List<Measurement> measurements = new LinkedList<>();
-		try {
-			long a = System.currentTimeMillis();
-			measurements = downloadData(station, start, end);
-			System.out.println("READ " + id + " DATA in " + (System.currentTimeMillis() - a) + "ms");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		LocalDateTime last = null;
-		long a = System.currentTimeMillis();
 		long i = 0;
 		for (Measurement measurementPair : measurements) {
 			i++;
@@ -140,12 +155,21 @@ public abstract class UpdatePredictionsTask {
 			}
 			last = now;
 		}
-		System.out.println("INSERTED " + id + " DATA in " + (System.currentTimeMillis() - a) + "ms");
-
 	}
 
 	protected abstract StationEntry predict(long timestamp, Map<Long, Station> stationMap);
 	
+	protected List<Measurement> getFromCache(Station station) throws ClientProtocolException, IOException {
+
+		File cacheFile = new File(stationCacheDir + station.id);
+		if (repository.countByStation(station) == 0 && cacheFile.exists()) {
+			try (Scanner input = new Scanner(cacheFile);) {
+				return parseResults(input);
+			}
+		}
+		return new LinkedList<>();
+	}
+
 	protected List<Measurement> downloadData(Station station, LocalDateTime start, LocalDateTime end) throws ClientProtocolException, IOException {
 
 		try (CloseableHttpClient httpclient = HttpClients.createDefault();) {
@@ -181,17 +205,6 @@ public abstract class UpdatePredictionsTask {
 			}
 		}
 
-		return new LinkedList<>();
-	}
-
-	protected List<Measurement> getFromCache(Station station) throws ClientProtocolException, IOException {
-
-		File cacheFile = new File(stationCacheDir + station.id);
-		if (repository.countByStation(station) == 0 && cacheFile.exists()) {
-			try (Scanner input = new Scanner(cacheFile);) {
-				return parseResults(input);
-			}
-		}
 		return new LinkedList<>();
 	}
 
