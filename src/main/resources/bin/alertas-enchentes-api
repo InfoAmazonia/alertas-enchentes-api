@@ -4,10 +4,10 @@ COMMAND=$1
 
 case $COMMAND in
 	start)
-		nohup java -jar  target/alertas-enchentes-api-1.0.jar &
+		nohup java -jar  alertas-enchentes-api-1.0.jar &
 	;;
 	stop)
-		PID=$(pgrep alertas-enchentes-api)
+		PID=$(ps aux | grep alertas-enchentes-api | grep -v grep | awk '{print $2}')
 		if [ -n "${PID}" ]; then
 			kill $PID
 		fi 

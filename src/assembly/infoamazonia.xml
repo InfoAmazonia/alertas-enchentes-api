@@ -37,7 +37,7 @@
 			<outputDirectory></outputDirectory>
 			<directory>src/main/resources</directory>
 			<includes>
-			<include>data</include>
+			<include>data/**</include>
 			</includes>
 		</fileSet>
 		<fileSet>

@@ -116,8 +116,13 @@ public abstract class UpdatePredictionsTask {
 			return getFromCache(station);
 		}
 
-		start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
+		if(latest == null){
+			start = LocalDateTime.parse(station.oldestMeasureDate, formatter);
+		}else{
+			start = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
+		}
 		end = LocalDateTime.now().plusDays(1);
+
 		return downloadData(station, start, end);
 	}
 
