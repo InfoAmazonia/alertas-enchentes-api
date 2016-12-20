@@ -1,4 +1,4 @@
-package br.edu.ufcg.analytics.infoamazonia.scheduled;
+package br.edu.ufcg.analytics.infoamazonia.task;
 
 public class Measurement {
 	

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.edu.ufcg.analytics.infoamazonia.scheduled;
+package br.edu.ufcg.analytics.infoamazonia.task;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -26,40 +26,42 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import br.edu.ufcg.analytics.infoamazonia.StationLoader;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
+import br.edu.ufcg.analytics.infoamazonia.task.Measurement;
+import br.edu.ufcg.analytics.infoamazonia.task.UpdateTasks;
 
 /**
  * @author Ricardo Ara&eacute;jo Santos - ricoaraujosantos@gmail.com
  *
  */
 @RunWith(Theories.class)
-public class UpdatePredictionsTaskIT {
+public class UpdateTasksIT {
 	
 	private static String stationFile = "src/test/resources/stations.json";
 	
 	@DataPoints
 	public static Station[] stations() throws JsonParseException, JsonMappingException, IOException {
-		return new StationLoader().loadStationsFromFile(stationFile);
+		return new StationLoader().loadFromJSON(stationFile);
 	}
 	
 	/**
-	 * Theory for {@link br.edu.ufcg.analytics.infoamazonia.scheduled.UpdatePredictionsTask#downloadData(Station, java.time.LocalDateTime, java.time.LocalDateTime)}.
+	 * Theory for {@link br.edu.ufcg.analytics.infoamazonia.task.UpdateTasks#downloadData(Station, java.time.LocalDateTime, java.time.LocalDateTime)}.
 	 * @throws IOException 
 	 * @throws ClientProtocolException 
 	 */
 	@Theory
 	public void thereIsPublishedDataForStation(Station station) throws ClientProtocolException, IOException {
 		
-		UpdatePredictionsTask updatePredictionsTask = new UpdatePredictionsTask(station.id){
+		UpdateTasks UpdateTasks = new UpdateTasks(station.id){
 			@Override
 			protected StationEntry predict(long timestamp, Map<Long, Station> stationMap) {
 				return null;
 			}
 		};
 		
-		LocalDateTime start = LocalDateTime.of(2016, 10, 1, 0, 0);
 		LocalDateTime end = LocalDateTime.of(2016, 10, 3, 0, 0);
+		LocalDateTime start = LocalDateTime.of(2016, 10, 1, 0, 0);
 
-		List<Measurement> measurements = updatePredictionsTask.downloadData(station, start, end);
+		List<Measurement> measurements = UpdateTasks.downloadData(station, start, end);
 		assertNotNull(measurements);
 		assertFalse("Should not be empty for station " + station, measurements.isEmpty());
 		

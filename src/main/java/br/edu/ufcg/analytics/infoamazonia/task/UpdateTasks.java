@@ -1,5 +1,5 @@
 
-package br.edu.ufcg.analytics.infoamazonia.scheduled;
+package br.edu.ufcg.analytics.infoamazonia.task;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -33,7 +33,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
+import br.edu.ufcg.analytics.infoamazonia.model.Alert;
+import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
+import br.edu.ufcg.analytics.infoamazonia.model.RiverStatus;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
@@ -41,7 +45,7 @@ import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Summary;
 import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 
-public abstract class UpdatePredictionsTask {
+public abstract class UpdateTasks {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -54,6 +58,24 @@ public abstract class UpdatePredictionsTask {
 	@Autowired
 	protected StationRepository stationRepository;
 
+	@Autowired
+	protected AlertRepository alertRepository;
+
+	@Value("${infoamazonia.alert.scenario.c}")
+	protected String c;
+
+	@Value("${infoamazonia.alert.scenario.d}")
+	protected String d;
+
+	@Value("${infoamazonia.alert.scenario.f}")
+	protected String f;
+
+	@Value("${infoamazonia.alert.scenario.h}")
+	protected String h;
+
+	@Value("${infoamazonia.alert.scenario.i}")
+	protected String i;
+
 	protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss");
 	protected DateTimeFormatter summaryFormatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
 	protected List<Long> dependencies;
@@ -62,7 +84,7 @@ public abstract class UpdatePredictionsTask {
 	protected String stationCacheDir;
 
 	
-	public UpdatePredictionsTask(Long stationId, Long... dependenciesIds) {
+	public UpdateTasks(Long stationId, Long... dependenciesIds) {
 		this.stationId = stationId;
 		this.dependencies = Arrays.asList(dependenciesIds);
 	}
@@ -153,6 +175,121 @@ public abstract class UpdatePredictionsTask {
 				populateSummary(station, last);
 			}
 			last = now;
+		}
+//		updateAlert(station);
+	}
+
+	protected void updateAlert(Station station) {
+		if(station.predict){
+			Alert lastAlert = alertRepository.findFirstByStationOrderByTimestampDesc(station);
+			StationEntry newEntry = repository.findFirstByStationOrderByTimestampDesc(station);
+			
+
+			if(lastAlert == null){
+				if(newEntry != null){
+					alertRepository.save(new Alert(station, newEntry.timestamp, "Primeiro alerta"));
+				}
+				return;
+			}
+
+			StationEntry lastEntry = repository.findFirstByStationAndTimestamp(station, lastAlert.timestamp);
+
+			StationEntry lastEntryWithMeasurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+			
+			if(lastAlert.timestamp < newEntry.timestamp){
+				
+				newEntry.fillStatus();
+				lastEntry.fillStatus();
+				lastEntryWithMeasurement.fillStatus();
+				
+				RiverStatus newPredictedStatus = newEntry.predictedStatus;
+				RiverStatus lastAlarmPredictedStatus = lastEntry.predictedStatus;
+				RiverStatus currentMeasuredStatus = lastEntryWithMeasurement.measuredStatus;
+				RiverStatus currentPredictedStatus = lastEntryWithMeasurement.predictedStatus;
+				if(!newPredictedStatus.equals(lastAlarmPredictedStatus) &&
+						!RiverStatus.INDISPONIVEL.equals(newPredictedStatus) &&
+						!newPredictedStatus.equals(currentMeasuredStatus)){
+					
+					if(lastAlarmPredictedStatus.equals(currentMeasuredStatus)){
+						alertRepository.save(new Alert(station, newEntry.timestamp, String.format(d, 
+								station.riverName, 
+								station.name, 
+								newPredictedStatus, 
+								12,
+								1.0*lastEntryWithMeasurement.measured/100, 
+								1.0*newEntry.predicted/100
+								)));
+					}else{
+						alertRepository.save(new Alert(station, newEntry.timestamp, String.format(h, 
+								station.riverName, 
+								station.name, 
+								newPredictedStatus, 
+								12,
+								1.0*lastEntryWithMeasurement.measured/100, 
+								1.0*newEntry.predicted/100
+								)));
+					}
+				}
+				
+				StationEntry beforeLastEntryWithMeasurement = repository.findFirstByStationAndTimestamp(station, lastEntryWithMeasurement.timestamp - 900);
+				RiverStatus pastEntryPredictedStatus = beforeLastEntryWithMeasurement.predictedStatus;
+				RiverStatus pastEntryMeasuredStatus = beforeLastEntryWithMeasurement.measuredStatus;
+				
+				if(currentPredictedStatus.equals(pastEntryPredictedStatus)){
+					if(currentMeasuredStatus.equals(pastEntryMeasuredStatus)){
+						if(!RiverStatus.INDISPONIVEL.equals(currentMeasuredStatus)){
+							alertRepository.save(new Alert(station, newEntry.timestamp, String.format(f, 
+									station.riverName, 
+									station.name, 
+									currentMeasuredStatus, 
+									1.0*lastEntryWithMeasurement.measured/100, 
+									1.0*newEntry.predicted/100,
+									12
+									)));
+						}
+					}else{
+						if(!RiverStatus.INDISPONIVEL.equals(currentMeasuredStatus) && !RiverStatus.INDISPONIVEL.equals(pastEntryMeasuredStatus)){
+							alertRepository.save(new Alert(station, newEntry.timestamp, String.format(c, 
+									station.riverName, 
+									station.name, 
+									currentMeasuredStatus, 
+									1.0*lastEntryWithMeasurement.measured/100, 
+									1.0*newEntry.predicted/100,
+									12
+									)));
+						}else{
+							if(RiverStatus.INDISPONIVEL.equals(currentMeasuredStatus)){
+								alertRepository.save(new Alert(station, newEntry.timestamp, String.format(i, 
+										station.riverName, 
+										station.name, 
+										currentMeasuredStatus, 
+										1.0*lastEntryWithMeasurement.measured/100, 
+										1.0*newEntry.predicted/100,
+										12
+										)));
+							}else{
+								
+							}
+						}
+					}
+				}
+				
+				if(!lastAlarmPredictedStatus.equals(pastEntryPredictedStatus)){
+					if(lastEntryWithMeasurement.predictedStatus.equals(currentMeasuredStatus)){
+					}else{
+						if(RiverStatus.INDISPONIVEL.equals(currentMeasuredStatus)){
+							alertRepository.save(new Alert(station, newEntry.timestamp, String.format(i, 
+									station.riverName, 
+									station.name, 
+									currentMeasuredStatus, 
+									1.0*lastEntryWithMeasurement.measured/100, 
+									1.0*newEntry.predicted/100,
+									12
+									)));
+						}
+					}
+				}
+			}
 		}
 	}
 

@@ -27,14 +27,14 @@ public class StationLoaderTest {
 	private String malformedFile = "src/test/resources/malformed.json";
 
 	/**
-	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadStationsFromFile(java.lang.String)}.
+	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadFromJSON(java.lang.String)}.
 	 * @throws IOException 
 	 * @throws JsonMappingException 
 	 * @throws JsonParseException 
 	 */
 	@Test
-	public void testLoadStationsFromFile() throws JsonParseException, JsonMappingException, IOException {
-		Station[] stations = new StationLoader().loadStationsFromFile(stationFile);
+	public void testloadFromJSON() throws JsonParseException, JsonMappingException, IOException {
+		Station[] stations = new StationLoader().loadFromJSON(stationFile);
 		assertNotEquals("Should have loaded stations", 0, stations.length);
 		
 		Station xapuri = stations[0];
@@ -54,38 +54,38 @@ public class StationLoaderTest {
 	}
 
 	/**
-	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadStationsFromFile(java.lang.String)}.
+	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadFromJSON(java.lang.String)}.
 	 * @throws IOException 
 	 * @throws JsonMappingException 
 	 * @throws JsonParseException 
 	 */
 	@Test(expected=JsonMappingException.class)
 	public void testLoadStationsFromEmptyFile() throws JsonParseException, JsonMappingException, IOException {
-		new StationLoader().loadStationsFromFile(emptyFile);
+		new StationLoader().loadFromJSON(emptyFile);
 	}
 
 	/**
-	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadStationsFromFile(java.lang.String)}.
+	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadFromJSON(java.lang.String)}.
 	 * @throws IOException 
 	 * @throws JsonMappingException 
 	 * @throws JsonParseException 
 	 */
 	@Test
 	public void testLoadNoStationsFromFile() throws JsonParseException, JsonMappingException, IOException {
-		Station[] stations = new StationLoader().loadStationsFromFile(noStationFile);
+		Station[] stations = new StationLoader().loadFromJSON(noStationFile);
 		assertEquals("Should not have loaded stations", 0, stations.length);
 
 	}
 
 	/**
-	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadStationsFromFile(java.lang.String)}.
+	 * Test method for {@link br.edu.ufcg.analytics.infoamazonia.StationLoader#loadFromJSON(java.lang.String)}.
 	 * @throws IOException 
 	 * @throws JsonMappingException 
 	 * @throws JsonParseException 
 	 */
 	@Test(expected=JsonMappingException.class)
 	public void testLoadStationsFromMalformedFile() throws JsonParseException, JsonMappingException, IOException {
-		new StationLoader().loadStationsFromFile(malformedFile);
+		new StationLoader().loadFromJSON(malformedFile);
 	}
 
 }

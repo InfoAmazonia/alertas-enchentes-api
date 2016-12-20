@@ -1,4 +1,4 @@
-package br.edu.ufcg.analytics.infoamazonia.scheduled;
+package br.edu.ufcg.analytics.infoamazonia.task;
 
 import java.io.FileNotFoundException;
 import java.text.ParseException;
@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.EntryPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 
 @Component
-public class UpdateRioAcre extends UpdatePredictionsTask {
+public class UpdateRioAcreTasks extends UpdateTasks {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -28,7 +28,7 @@ public class UpdateRioAcre extends UpdatePredictionsTask {
 	private static final double ALPHA = 0.717395738210093;
 	private static final double BETA = 0.151170920309919;
 	
-	public UpdateRioAcre() {
+	public UpdateRioAcreTasks() {
 		super(RIOBRANCO_ID, XAPURI_ID);
 	}
 

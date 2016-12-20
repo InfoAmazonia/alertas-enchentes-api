@@ -3,13 +3,15 @@ package br.edu.ufcg.analytics.infoamazonia;
 import org.h2.server.web.WebServlet;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class InfoAmazoniaREST {
+@EnableConfigurationProperties
+public class Application {
 	
 	@Bean
 	public ServletRegistrationBean h2servletRegistration() {
@@ -19,7 +21,6 @@ public class InfoAmazoniaREST {
 	}
 
 	public static void main(String args[]) {
-		
-        SpringApplication.run(InfoAmazoniaREST.class, args);
+        SpringApplication.run(Application.class, args);
     }
 }

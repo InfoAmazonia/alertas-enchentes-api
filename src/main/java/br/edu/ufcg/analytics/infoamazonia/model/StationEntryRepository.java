@@ -18,4 +18,6 @@ public interface StationEntryRepository extends CrudRepository<StationEntry, Ent
 
 	Long countByStation(Station station);
 
+	StationEntry findFirstByStationOrderByTimestampDesc(Station station);
+
 }

@@ -1,4 +1,4 @@
-package br.edu.ufcg.analytics.infoamazonia.scheduled;
+package br.edu.ufcg.analytics.infoamazonia.task;
 
 import java.io.FileNotFoundException;
 import java.text.ParseException;
@@ -17,7 +17,7 @@ import br.edu.ufcg.analytics.infoamazonia.model.EntryPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 
 @Component
-public class UpdateRioMadeira extends UpdatePredictionsTask {
+public class UpdateRioMadeiraTasks extends UpdateTasks {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -33,7 +33,7 @@ public class UpdateRioMadeira extends UpdatePredictionsTask {
 	private static final double A_3 = -0.014;
 	private static final double A_4 = 0.023;
 	
-	public UpdateRioMadeira() {
+	public UpdateRioMadeiraTasks() {
 		super(PORTOVELHO_ID, ABUNA_ID, MORADA_ID, GUAJARA_ID);
 	}
 

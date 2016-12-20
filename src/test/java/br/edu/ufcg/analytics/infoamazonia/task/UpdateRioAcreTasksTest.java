@@ -1,7 +1,7 @@
 /**
  * 
  */
-package br.edu.ufcg.analytics.infoamazonia.scheduled;
+package br.edu.ufcg.analytics.infoamazonia.task;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,6 +31,7 @@ import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
+import br.edu.ufcg.analytics.infoamazonia.task.UpdateRioAcreTasks;
 
 /**
  * @author Ricardo Ara&eacute;jo Santos - ricoaraujosantos@gmail.com
@@ -38,7 +39,7 @@ import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
  */
 @RunWith(SpringRunner.class)
 @DataJpaTest
-public class UpdateRioAcreTest {
+public class UpdateRioAcreTasksTest {
 
 	private static String stationFile = "src/test/resources/stations.json";
 	private static final long RIOBRANCO_ID = 13600002L;
@@ -56,17 +57,17 @@ public class UpdateRioAcreTest {
     private Station rioBranco;
 	private Station xapuri;
 	
-	private UpdateRioAcre update;
+	private UpdateRioAcreTasks update;
     
 	
     @Before
 	public void setUp() throws Exception {
-    	Station[] stations = new StationLoader().loadStationsFromFile(stationFile);
+    	Station[] stations = new StationLoader().loadFromJSON(stationFile);
 		this.stationRepository.save(Arrays.asList(stations));
 		rioBranco = stationRepository.findOne(RIOBRANCO_ID);
 		xapuri = stationRepository.findOne(XAPURI_ID);
 
-		update = new UpdateRioAcre();
+		update = new UpdateRioAcreTasks();
 		update.repository = stationEntryRepository;
 		update.stationRepository = stationRepository;
 		update.summaryRepository = summaryRepository;
