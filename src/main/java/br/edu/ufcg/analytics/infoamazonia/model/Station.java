@@ -25,6 +25,7 @@ public class Station implements Serializable{
 	public String oldestMeasureDate;
 	public Boolean predict;
 	public Long lstStation;
+	
 	@Column(length=10000)
 	public String viewState;
 
