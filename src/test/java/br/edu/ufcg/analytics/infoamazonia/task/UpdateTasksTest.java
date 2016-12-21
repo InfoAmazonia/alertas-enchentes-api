@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.StationRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
-import br.edu.ufcg.analytics.infoamazonia.task.UpdateTasks;
 
 /**
  * @author Ricardo Ara&eacute;jo Santos - ricoaraujosantos@gmail.com
@@ -36,8 +36,6 @@ import br.edu.ufcg.analytics.infoamazonia.task.UpdateTasks;
 @DataJpaTest
 public class UpdateTasksTest {
 
-	private static String resource = "src/test/resources/fake_station_ok";
-	
     @Autowired
     private StationRepository stationRepository;
 
@@ -118,6 +116,7 @@ public class UpdateTasksTest {
     }
 
     @Test
+    @Ignore
     public void testAlertScenarioC() throws FileNotFoundException, ParseException{
 
     	Long timestamp = 0L;
@@ -163,6 +162,7 @@ public class UpdateTasksTest {
 	}
 
     @Test
+    @Ignore
     public void testAlertScenarioD() throws FileNotFoundException, ParseException{
     	Long timestamp = 0L;
 		

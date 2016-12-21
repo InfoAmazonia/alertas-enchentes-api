@@ -26,8 +26,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import br.edu.ufcg.analytics.infoamazonia.StationLoader;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
-import br.edu.ufcg.analytics.infoamazonia.task.Measurement;
-import br.edu.ufcg.analytics.infoamazonia.task.UpdateTasks;
 
 /**
  * @author Ricardo Ara&eacute;jo Santos - ricoaraujosantos@gmail.com
@@ -58,16 +56,16 @@ public class UpdateTasksIT {
 			}
 		};
 		
-		LocalDateTime end = LocalDateTime.of(2016, 10, 3, 0, 0);
-		LocalDateTime start = LocalDateTime.of(2016, 10, 1, 0, 0);
+		LocalDateTime end = LocalDateTime.now();
+		LocalDateTime start = end.minusMonths(1);
 
 		List<Measurement> measurements = UpdateTasks.downloadData(station, start, end);
 		assertNotNull(measurements);
 		assertFalse("Should not be empty for station " + station, measurements.isEmpty());
 		
-		List<Long> data = measurements.stream().mapToLong(measurement -> measurement.quota).boxed().collect(Collectors.toList());;
+		List<Long> data = measurements.stream().map(measurement -> measurement.quota).collect(Collectors.toList());;
 		
-		assertThat(data, Matchers.hasItem(Matchers.notNullValue(Long.class)));
+		assertThat("Should have at least one valid data point in the last month", data, Matchers.hasItem(Matchers.notNullValue(Long.class)));
 	}
 
 }
