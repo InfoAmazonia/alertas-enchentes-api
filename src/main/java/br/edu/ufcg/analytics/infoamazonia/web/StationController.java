@@ -9,11 +9,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.edu.ufcg.analytics.infoamazonia.service.StationService;
-import br.edu.ufcg.analytics.infoamazonia.service.StationService.Result;
 import br.edu.ufcg.analytics.infoamazonia.model.Alert;
+import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.Summary;
+import br.edu.ufcg.analytics.infoamazonia.service.StationService;
+import br.edu.ufcg.analytics.infoamazonia.service.StationService.Result;
 
 @CrossOrigin
 @RestController
@@ -54,7 +55,10 @@ public class StationController {
 		if (!service.exists(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
-		return new ResponseEntity<>(service.getLatestAlert(id), HttpStatus.OK);
+		
+		Station station = new Station();
+		
+		return new ResponseEntity<>(new Alert(station, (long)(300 * Math.floor(System.currentTimeMillis()/300000)), "Alerta fake para estação de id=" + id + "!!!!!"), HttpStatus.OK);
+//		return new ResponseEntity<>(service.getLatestAlert(id), HttpStatus.OK);
 	}
 }
