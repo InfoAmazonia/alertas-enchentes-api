@@ -6,7 +6,7 @@
 	<formats>
 		<format>zip</format>
 	</formats>
-	<baseDirectory>alerta_enchentes_api</baseDirectory>
+	<baseDirectory>alertas_enchentes_api</baseDirectory>
 	<files>
 		<file>
 			<source>target/${project.artifactId}-${project.version}.jar</source>
