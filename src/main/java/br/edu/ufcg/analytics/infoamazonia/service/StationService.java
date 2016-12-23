@@ -107,7 +107,9 @@ public class StationService {
 		Station station = stationRepo.findOne(id);
 		StationEntry lastMeasurement = stationEntryRepo
 				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
-		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampGreaterThanEqual(station, lastMeasurement.timestamp);
+		
+		long timestamp = System.currentTimeMillis()/1000 - 900;
+		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampGreaterThanEqual(station, timestamp);
 
 		for (StationEntry alert : alerts) {
 			alert.fillStatus();
