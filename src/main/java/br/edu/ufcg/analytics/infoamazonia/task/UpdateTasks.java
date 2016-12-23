@@ -135,7 +135,7 @@ public abstract class UpdateTasks {
 		LocalDateTime start;
 		LocalDateTime end;
 		
-		if(this.stationCacheDir != null){
+		if(this.stationCacheDir != null && !this.stationCacheDir.isEmpty()){
 			logger.info("Populating from local cache!");
 			return getFromCache(station);
 		}
