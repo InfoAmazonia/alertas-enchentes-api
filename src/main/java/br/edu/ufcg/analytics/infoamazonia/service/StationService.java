@@ -102,13 +102,29 @@ public class StationService {
 		return alert;
 	}
 
-	public Result<StationEntry> getPredictionsForStationSince(Long id, Long timestamp) {
+	public Result<StationEntry> getLastPredictionsForStation(Long id) {
 
 		Station station = stationRepo.findOne(id);
 		StationEntry lastMeasurement = stationEntryRepo
 				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampGreaterThanEqual(station, lastMeasurement.timestamp);
+
+		for (StationEntry alert : alerts) {
+			alert.fillStatus();
+		}
+
+		return new Result<StationEntry>(station, alerts, lastMeasurement);
+	}
+
+	
+	public Result<StationEntry> getPredictionsForStationSince(Long id, Long timestamp) {
+
+		Station station = stationRepo.findOne(id);
+		int delta = 43200;//station.delta;
+		StationEntry lastMeasurement = stationEntryRepo
+				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampBetween(station, timestamp,
-				timestamp + 43200);
+				timestamp + delta);
 
 		for (StationEntry alert : alerts) {
 			alert.fillStatus();

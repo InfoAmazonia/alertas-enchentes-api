@@ -33,9 +33,9 @@ public class StationController {
 		}
 
 		if (timestamp == -1) {
-			timestamp = System.currentTimeMillis()/1000 - 300;
+			return new ResponseEntity<>(service.getLastPredictionsForStation(id), HttpStatus.OK);
 		}
-
+		
 		return new ResponseEntity<>(service.getPredictionsForStationSince(id, timestamp), HttpStatus.OK);
 	}
 

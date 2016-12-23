@@ -5,8 +5,6 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.util.Map;
 
-import javax.transaction.Transactional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,7 +32,6 @@ public class UpdateRioAcreTasks extends UpdateTasks {
 
 	@Scheduled(initialDelay=1000, fixedRate = RATE)
 	@Override
-	@Transactional
 	public void update() throws FileNotFoundException, ParseException {
 		logger.info("Updating Rio Acre");
 		long time = System.currentTimeMillis();

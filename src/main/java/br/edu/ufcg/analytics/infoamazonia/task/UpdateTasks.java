@@ -81,6 +81,7 @@ public abstract class UpdateTasks {
 	protected List<Long> dependencies;
 	protected Long stationId;
 
+	@Value("${infoamazonia.station.cache.dir}")
 	protected String stationCacheDir;
 
 	
@@ -109,8 +110,8 @@ public abstract class UpdateTasks {
 	
 	private void populateStation(Long id) {
 		
-		logger.debug("station: "+id);
 		Station station = stationRepository.findOne(id);
+		logger.info("Populando dados da estação: " + station);
 
 		StationEntry latest = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		logger.debug("latest: "+latest);
@@ -120,9 +121,9 @@ public abstract class UpdateTasks {
 			long a = System.currentTimeMillis();
 			List<Measurement> measurements = getMeasurements(station, latest);
 			logger.debug("READ " + id + " DATA in " + (System.currentTimeMillis() - a) + "ms");
-			logger.info("linhas: " + measurements.size());
 			a = System.currentTimeMillis();
 			updateData(station, measurements);
+			logger.info("Populated with " + measurements.size() + " entries.");
 			logger.debug("INSERTED " + id + " DATA in " + (System.currentTimeMillis() - a) + "ms");
 		} catch (IOException e) {
 			logger.error("Problem updating data for station " + station.id, e);
@@ -135,6 +136,7 @@ public abstract class UpdateTasks {
 		LocalDateTime end;
 		
 		if(this.stationCacheDir != null){
+			logger.info("Populating from local cache!");
 			return getFromCache(station);
 		}
 
@@ -164,10 +166,10 @@ public abstract class UpdateTasks {
 			Long quota = measurementPair.quota;
 			repository.save(new StationEntry(station, timestamp, quota));
 
+			if(i % 1000 == 0){
+				logger.debug(System.currentTimeMillis() + "> " + i);
+			}
 			if(station.predict){
-				if(i % 1000 == 0){
-					System.err.println(System.currentTimeMillis() + "> " + i);
-				}
 				repository.save(predict(timestamp, stationMap));
 			}
 			LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneId.of("America/Recife"));
@@ -297,7 +299,7 @@ public abstract class UpdateTasks {
 	
 	protected List<Measurement> getFromCache(Station station) throws ClientProtocolException, IOException {
 
-		File cacheFile = new File(stationCacheDir + "/" + station.id);
+		File cacheFile = new File(stationCacheDir + "/" + station.id + ".txt");
 		logger.info("Cache file: " + cacheFile.getAbsolutePath());
 		try (Scanner input = new Scanner(cacheFile);) {
 			return parseResults(input);

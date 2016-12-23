@@ -16,6 +16,8 @@ public interface StationEntryRepository extends CrudRepository<StationEntry, Ent
 
 	List<StationEntry> findAllByStationAndTimestampBetween(Station station, Long start, Long end);
 
+	List<StationEntry> findAllByStationAndTimestampGreaterThanEqual(Station station, Long start);
+
 	Long countByStation(Station station);
 
 	StationEntry findFirstByStationOrderByTimestampDesc(Station station);

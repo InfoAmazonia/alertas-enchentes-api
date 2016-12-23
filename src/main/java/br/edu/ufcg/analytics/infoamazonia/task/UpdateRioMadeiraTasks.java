@@ -5,16 +5,14 @@ import java.text.ParseException;
 import java.time.Duration;
 import java.util.Map;
 
-import javax.transaction.Transactional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.EntryPk;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
+import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 
 @Component
 public class UpdateRioMadeiraTasks extends UpdateTasks {
@@ -39,7 +37,6 @@ public class UpdateRioMadeiraTasks extends UpdateTasks {
 
 	@Scheduled(initialDelay=1000, fixedRate = RATE)
 	@Override
-	@Transactional
 	public void update() throws FileNotFoundException, ParseException {
 		logger.info("Update Rio Madeira ");
 		long time = System.currentTimeMillis();
