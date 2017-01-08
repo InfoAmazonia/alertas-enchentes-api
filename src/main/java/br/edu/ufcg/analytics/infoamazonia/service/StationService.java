@@ -4,12 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import br.edu.ufcg.analytics.infoamazonia.model.Alert;
 import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
@@ -23,6 +19,8 @@ import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 @Service
 public class StationService {
 	
+	private static final int HOUR_IN_SECONDS = 3600;
+
 	@Autowired
 	private StationEntryRepository stationEntryRepo;
 
@@ -56,33 +54,6 @@ public class StationService {
 		return stationRepo.exists(stationId);
 	}
 
-	@RequestMapping("/{id}/prediction")
-	public ResponseEntity<Result<StationEntry>> getRecomendationsFor(@PathVariable Long id,
-			@RequestParam(value = "timestamp", defaultValue = "-1") Long timestamp) {
-
-		Station station = stationRepo.findOne(id);
-
-		if (station == null) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-
-		StationEntry lastMeasurement = stationEntryRepo
-				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
-		lastMeasurement.fillStatus();
-		if (timestamp == -1) {
-			timestamp = System.currentTimeMillis() / 1000;
-		}
-
-		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampBetween(station, timestamp - 300,
-				timestamp + 43200);
-		for (StationEntry alert : alerts) {
-			alert.fillStatus();
-		}
-
-		return new ResponseEntity<>(new Result<StationEntry>(station, alerts, lastMeasurement), HttpStatus.OK);
-	}
-
-	@RequestMapping("/{id}/history")
 	public Result<Summary> getHistory(@PathVariable Long id) {
 
 		Station station = stationRepo.findOne(id);
@@ -95,38 +66,20 @@ public class StationService {
 		return new Result<Summary>(station, history);
 	}
 
-	@RequestMapping("/{id}/alert")
 	public Alert getLatestAlert(@PathVariable Long id) {
 
 		Alert alert = alertRepo.findFirstByStationOrderByTimestampDesc(stationRepo.findOne(id));
 		return alert;
 	}
 
-	public Result<StationEntry> getLastPredictionsForStation(Long id) {
+	public Result<StationEntry> getPredictionsForStationSince(Long id, Long timestamp) {
 
 		Station station = stationRepo.findOne(id);
 		StationEntry lastMeasurement = stationEntryRepo
 				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		
-		long timestamp = System.currentTimeMillis()/1000 - 900;
-		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampGreaterThanEqual(station, timestamp);
-
-		for (StationEntry alert : alerts) {
-			alert.fillStatus();
-		}
-
-		return new Result<StationEntry>(station, alerts, lastMeasurement);
-	}
-
-	
-	public Result<StationEntry> getPredictionsForStationSince(Long id, Long timestamp) {
-
-		Station station = stationRepo.findOne(id);
-		int delta = 43200;//station.delta;
-		StationEntry lastMeasurement = stationEntryRepo
-				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampBetween(station, timestamp,
-				timestamp + delta);
+				timestamp + station.predictionWindow * HOUR_IN_SECONDS);
 
 		for (StationEntry alert : alerts) {
 			alert.fillStatus();

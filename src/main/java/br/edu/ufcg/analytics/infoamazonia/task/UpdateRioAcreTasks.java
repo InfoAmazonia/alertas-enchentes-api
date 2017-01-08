@@ -2,7 +2,6 @@ package br.edu.ufcg.analytics.infoamazonia.task;
 
 import java.io.FileNotFoundException;
 import java.text.ParseException;
-import java.time.Duration;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -22,7 +21,6 @@ public class UpdateRioAcreTasks extends UpdateTasks {
 	private static final long RIOBRANCO_ID = 13600002L;
 	private static final long XAPURI_ID = 13551000L;
 	private static final long RATE = 900000;
-	private static final long DELTA = Duration.ofHours(12).getSeconds();
 	private static final double ALPHA = 0.717395738210093;
 	private static final double BETA = 0.151170920309919;
 	
@@ -46,13 +44,15 @@ public class UpdateRioAcreTasks extends UpdateTasks {
 		Station stationRioBranco = stations.get(RIOBRANCO_ID);
 		Station stationXapuri = stations.get(XAPURI_ID);
 		
-		StationEntry future = new StationEntry(stationRioBranco, timestamp + DELTA);
+		long predictionWindow = stationRioBranco.predictionWindow * HOUR_IN_SECONDS;
+		
+		StationEntry future = new StationEntry(stationRioBranco, timestamp + predictionWindow );
 
-		StationEntry pastXapuri = repository.findOne(new EntryPk(timestamp - DELTA,  stationXapuri.id));
-		StationEntry pastPastXapuri = repository.findOne(new EntryPk(timestamp - 2*DELTA,  stationXapuri.id));
+		StationEntry pastXapuri = repository.findOne(new EntryPk(timestamp - predictionWindow,  stationXapuri.id));
+		StationEntry pastPastXapuri = repository.findOne(new EntryPk(timestamp - 2*predictionWindow,  stationXapuri.id));
 		
 		StationEntry current = repository.findOne(new EntryPk(timestamp,  stationRioBranco.id));
-		StationEntry past = repository.findOne(new EntryPk(timestamp - DELTA,  stationRioBranco.id));
+		StationEntry past = repository.findOne(new EntryPk(timestamp - predictionWindow,  stationRioBranco.id));
 		
 		if(!isAnyAlertNull(current, past, pastXapuri, pastPastXapuri)){
 			long calculated  = (long) (current.measured + 

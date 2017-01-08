@@ -36,11 +36,15 @@ public class Station implements Serializable{
 	public Long attentionThreshold;
 	public Long floodThreshold;
 	
+	public String timezone;
+	
+	public Long predictionWindow;
+	
 	public Station() {
 		
 	}
 	
-	public Station(long id, String name, String riverName, String cityName, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int bacia, int subbacia, Long attentionThreshold) {
+	public Station(long id, String name, String riverName, String cityName, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int bacia, int subbacia, Long attentionThreshold, String timezone, Long predictionWindow) {
 		this();
 		this.name = name;
 		this.id = id;
@@ -55,6 +59,8 @@ public class Station implements Serializable{
 		this.viewState = viewState;
 		this.bacia = bacia;
 		this.subbacia = subbacia;
+		this.timezone = timezone;
+		this.predictionWindow = predictionWindow;
 	}
 
 	public RiverStatus calculateStatus(Long quota) {

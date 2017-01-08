@@ -48,6 +48,9 @@ import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 public abstract class UpdateTasks {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	protected static final int HOUR_IN_SECONDS = 3600;
+
 
 	@Autowired
 	protected StationEntryRepository repository;

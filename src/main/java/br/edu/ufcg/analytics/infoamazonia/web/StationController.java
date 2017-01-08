@@ -21,6 +21,7 @@ import br.edu.ufcg.analytics.infoamazonia.service.StationService.Result;
 @RequestMapping("/station")
 public class StationController {
 
+	private static final int FIFTEEN_MINUTES = 900;
 	@Autowired
 	private StationService service;
 
@@ -33,7 +34,7 @@ public class StationController {
 		}
 
 		if (timestamp == -1) {
-			return new ResponseEntity<>(service.getLastPredictionsForStation(id), HttpStatus.OK);
+			timestamp = System.currentTimeMillis()/1000 - FIFTEEN_MINUTES;
 		}
 		
 		return new ResponseEntity<>(service.getPredictionsForStationSince(id, timestamp), HttpStatus.OK);

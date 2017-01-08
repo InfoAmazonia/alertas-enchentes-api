@@ -2,7 +2,6 @@ package br.edu.ufcg.analytics.infoamazonia.task;
 
 import java.io.FileNotFoundException;
 import java.text.ParseException;
-import java.time.Duration;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -25,12 +24,11 @@ public class UpdateRioMadeiraTasks extends UpdateTasks {
 	private static final long GUAJARA_ID = 15250000;
 	
 	private static final long RATE = 900000;
-	private static final long DELTA = Duration.ofDays(1).getSeconds();
 	private static final double A_1 = -0.115;
 	private static final double A_2 = 0.994;
 	private static final double A_3 = -0.014;
 	private static final double A_4 = 0.023;
-	
+
 	public UpdateRioMadeiraTasks() {
 		super(PORTOVELHO_ID, ABUNA_ID, MORADA_ID, GUAJARA_ID);
 	}
@@ -53,19 +51,21 @@ public class UpdateRioMadeiraTasks extends UpdateTasks {
 		Station morada = stations.get(MORADA_ID);
 		Station guajara = stations.get(GUAJARA_ID);
 		
-		StationEntry future = new StationEntry(portoVelho, timestamp + DELTA);
+		long predictionWindow = portoVelho.predictionWindow * HOUR_IN_SECONDS;
+		
+		StationEntry future = new StationEntry(portoVelho, timestamp + predictionWindow);
 		
 		StationEntry current = repository.findOne(new EntryPk(timestamp, portoVelho.id));
-		StationEntry past = repository.findOne(new EntryPk(timestamp - DELTA, portoVelho.id));
+		StationEntry past = repository.findOne(new EntryPk(timestamp - predictionWindow, portoVelho.id));
 
 		StationEntry currentAbuna = repository.findOne(new EntryPk(timestamp, abuna.id));
-		StationEntry pastAbuna = repository.findOne(new EntryPk(timestamp - DELTA, abuna.id));
+		StationEntry pastAbuna = repository.findOne(new EntryPk(timestamp - predictionWindow, abuna.id));
 
-		StationEntry currentMorada = repository.findOne(new EntryPk(timestamp - DELTA, morada.id));
-		StationEntry pastMorada = repository.findOne(new EntryPk(timestamp - 2*DELTA, morada.id));
+		StationEntry currentMorada = repository.findOne(new EntryPk(timestamp - predictionWindow, morada.id));
+		StationEntry pastMorada = repository.findOne(new EntryPk(timestamp - 2*predictionWindow, morada.id));
 
-		StationEntry currentGuajara = repository.findOne(new EntryPk(timestamp - 2*DELTA, guajara.id));
-		StationEntry pastGuajara = repository.findOne(new EntryPk(timestamp - 4*DELTA, guajara.id));
+		StationEntry currentGuajara = repository.findOne(new EntryPk(timestamp - 2*predictionWindow, guajara.id));
+		StationEntry pastGuajara = repository.findOne(new EntryPk(timestamp - 4*predictionWindow, guajara.id));
 
 		if (!isAnyAlertNull(current, past, currentAbuna, pastAbuna, currentMorada, pastMorada, currentGuajara, pastGuajara)) {
 
