@@ -14,6 +14,8 @@ import java.text.ParseException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,6 +45,8 @@ public class UpdateRioAcreTasksTest {
 	private static String stationFile = "src/test/resources/stations.json";
 	private static final long RIOBRANCO_ID = 13600002L;
 	private static final long XAPURI_ID = 13551000L;
+	private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss").withZone(ZoneId.systemDefault());
+
 	
     @Autowired
     private StationRepository stationRepository;
@@ -61,6 +65,7 @@ public class UpdateRioAcreTasksTest {
 	
     @Before
 	public void setUp() throws Exception {
+    	System.setProperty("user.timezone", "UTC");
     	Station[] stations = new StationLoader().loadFromJSON(stationFile);
 		this.stationRepository.save(Arrays.asList(stations));
 		rioBranco = stationRepository.findOne(RIOBRANCO_ID);
@@ -83,15 +88,15 @@ public class UpdateRioAcreTasksTest {
 
 		update.update();
 		
+		Long expectedTimestamp = ZonedDateTime.parse("03/01/201623:45:00", formatter).toEpochSecond();
+
 		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(rioBranco);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		LocalDateTime latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 03, 23, 45), latestDate);
+		assertEquals(expectedTimestamp, latest.timestamp);
 		
 		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
 		assertNotNull("Xapuri station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 03, 23, 45), latestDate);
+		assertEquals(expectedTimestamp, latest.timestamp);
 		
 		assertEquals(Long.valueOf(287+49), stationEntryRepository.countByStation(rioBranco));
 
@@ -127,14 +132,14 @@ public class UpdateRioAcreTasksTest {
 
 		StationEntry latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(rioBranco);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		LocalDateTime latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 0, 0), latestDate);
+		Long expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		
 		List<StationEntry> all = stationEntryRepository.findAllByStationAndTimestampBetween(rioBranco, latest.timestamp, latest.timestamp+43200);
 		latest = all.get(all.size()-1);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 12, 0), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201612:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
 		assertNotNull(latest.calculated);
 		assertThat(latest.calculated, Matchers.greaterThanOrEqualTo(0L));
@@ -144,8 +149,8 @@ public class UpdateRioAcreTasksTest {
 		
 		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
 		assertNotNull("Xapuri station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 0, 0), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 	}
 	
 	@Test
@@ -162,21 +167,21 @@ public class UpdateRioAcreTasksTest {
 
 		StationEntry latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(rioBranco);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		LocalDateTime latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 03, 23, 45), latestDate);
+		Long expectedTimestamp = ZonedDateTime.parse("03/01/201623:45:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		
 		List<StationEntry> all = stationEntryRepository.findAllByStationAndTimestampBetween(rioBranco, latest.timestamp+300, latest.timestamp+1200);
 		latest = all.get(all.size()-1);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 0, 0), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
 		
 		all = stationEntryRepository.findAllByStationAndTimestampBetween(rioBranco, latest.timestamp, latest.timestamp+43200);
 		latest = all.get(all.size()-1);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 12, 0), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201612:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
 		assertNull(latest.calculated);
 		assertNull(latest.predicted);
@@ -184,8 +189,8 @@ public class UpdateRioAcreTasksTest {
 		
 		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
 		assertNotNull("Xapuri station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 0, 0), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNotNull(latest.measured);
 	}
 	
@@ -203,29 +208,29 @@ public class UpdateRioAcreTasksTest {
 
 		StationEntry latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(rioBranco);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		LocalDateTime latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 00, 00), latestDate);
+		Long expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 
 		List<StationEntry> all = stationEntryRepository.findAllByStationAndTimestampBetween(rioBranco, latest.timestamp, latest.timestamp+43200);
 		latest = all.get(all.size()-1);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 12, 0), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201612:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
 		assertNotNull(latest.calculated);
 		assertNotNull(latest.predicted);
 		
 		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
 		assertNotNull("Xapuri station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 03, 23, 45), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("03/01/201623:45:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNotNull(latest.measured);
 		
 		all = stationEntryRepository.findAllByStationAndTimestampBetween(xapuri, latest.timestamp+300, latest.timestamp+1200);
 		latest = all.get(all.size()-1);
 		assertNotNull("Xapuri station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 0, 0), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
 	}
 	
@@ -242,14 +247,14 @@ public class UpdateRioAcreTasksTest {
 
 		StationEntry latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(rioBranco);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		LocalDateTime latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 04, 12, 00), latestDate);
+		Long expectedTimestamp = ZonedDateTime.parse("04/01/201612:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 
 		List<StationEntry> all = stationEntryRepository.findAllByStationAndTimestampBetween(rioBranco, latest.timestamp, latest.timestamp+43200);
 		latest = all.get(all.size()-1);
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
-		latestDate = LocalDateTime.ofInstant(Instant.ofEpochSecond(latest.timestamp), ZoneId.of("America/Recife"));
-		assertEquals(LocalDateTime.of(2016, 01, 05, 00, 0), latestDate);
+		expectedTimestamp = ZonedDateTime.parse("05/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
 		assertNull(latest.calculated);
 		assertNull(latest.predicted);
