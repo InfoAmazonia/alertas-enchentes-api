@@ -84,10 +84,7 @@ public class Station implements Serializable{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Station other = (Station) obj;
-		if (id != other.id)
-			return false;
-		return true;
+		return id == ((Station) obj).id;
 	}
 
 	@Override

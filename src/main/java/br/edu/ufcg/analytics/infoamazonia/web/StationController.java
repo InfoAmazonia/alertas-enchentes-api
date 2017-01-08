@@ -33,11 +33,9 @@ public class StationController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		if (timestamp == -1) {
-			timestamp = System.currentTimeMillis()/1000 - FIFTEEN_MINUTES;
-		}
+		long queryTimestamp = timestamp == -1 ? System.currentTimeMillis() / 1000 - FIFTEEN_MINUTES : timestamp;
 		
-		return new ResponseEntity<>(service.getPredictionsForStationSince(id, timestamp), HttpStatus.OK);
+		return new ResponseEntity<>(service.getPredictionsForStationSince(id, queryTimestamp), HttpStatus.OK);
 	}
 
 	@RequestMapping("/{id}/history")
