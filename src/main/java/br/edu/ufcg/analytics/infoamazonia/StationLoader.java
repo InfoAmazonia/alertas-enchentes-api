@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.edu.ufcg.analytics.infoamazonia.exception.InfoAmazoniaException;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.Summary;
 import br.edu.ufcg.analytics.infoamazonia.service.StationService;
@@ -57,7 +58,7 @@ public class StationLoader implements ApplicationListener<ApplicationReadyEvent>
 			logger.debug("Finished loading stations");
 		} catch (IOException e) {
 			logger.error("Problem occured while loading stations", e);
-			throw new RuntimeException(e);
+			throw new InfoAmazoniaException("Problem occured while loading stations", e);
 		}
 	}
 	
