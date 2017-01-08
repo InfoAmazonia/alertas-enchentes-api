@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.AbstractMap;
@@ -79,7 +80,7 @@ public abstract class UpdateTasks {
 	@Value("${infoamazonia.alert.scenario.i}")
 	protected String i;
 
-	protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss");
+	protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss").withZone(ZoneId.systemDefault());
 	protected DateTimeFormatter summaryFormatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
 	protected List<Long> dependencies;
 	protected Long stationId;
@@ -353,9 +354,10 @@ public abstract class UpdateTasks {
 			while (input.hasNextLine()) {
 				String line = input.nextLine().trim();
 				String[] tokens = line.split("\\s+");
-				LocalDateTime now = LocalDateTime.parse(tokens[0] + tokens[1], formatter);
 
-				Long timestamp = now.toEpochSecond(ZoneOffset.of("-3"));
+				ZonedDateTime now = ZonedDateTime.parse(tokens[0] + tokens[1], formatter);
+
+				Long timestamp = now.toEpochSecond();
 				Long quota = tokens.length == 3 ? Math.round(Double.valueOf(tokens[2])) : null;
 				result.add(new Measurement(timestamp, quota));
 			}

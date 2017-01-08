@@ -27,7 +27,7 @@ public class StationController {
 
 	@RequestMapping("/{id}/prediction")
 	public ResponseEntity<Result<StationEntry>> getRecomendationsFor(@PathVariable Long id,
-			@RequestParam(value = "timestamp", defaultValue = "-1") Long timestamp) {
+			@RequestParam(name = "timestamp", defaultValue = "-1") Long timestamp) {
 
 		if (!service.exists(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
