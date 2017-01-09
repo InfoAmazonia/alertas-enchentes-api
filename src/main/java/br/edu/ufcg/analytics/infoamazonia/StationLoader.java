@@ -54,6 +54,9 @@ public class StationLoader implements ApplicationListener<ApplicationReadyEvent>
 					List<Summary> history = loadStationHistory(station, new File(stationsHistoryDir + "/" + station.id + ".csv"));
 					service.saveHistory(history);
 				}
+				if(!service.containsAlerts(station)){
+					service.initAlerts(station);
+				}
 			}
 			logger.debug("Finished loading stations");
 		} catch (IOException e) {

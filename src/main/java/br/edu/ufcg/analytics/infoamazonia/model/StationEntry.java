@@ -124,4 +124,12 @@ public class StationEntry implements Serializable {
 		this.predictedStatus = station.calculateStatus(this.predicted);
 	}
 
+	public boolean hasSameMeasuredStatus(StationEntry entry) {
+		return this.measuredStatus.equals(entry.measuredStatus);
+	}
+
+	public boolean hasSamePredictedStatus(StationEntry entry) {
+		return this.predictedStatus.equals(entry.predictedStatus);
+	}
+
 }

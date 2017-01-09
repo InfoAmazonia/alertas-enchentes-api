@@ -188,115 +188,71 @@ public abstract class UpdateTasks {
 	protected void updateAlert(Station station) {
 		if(station.predict){
 			Alert lastAlert = alertRepository.findFirstByStationOrderByTimestampDesc(station);
-			StationEntry newEntry = repository.findFirstByStationOrderByTimestampDesc(station);
-			
 
-			if(lastAlert == null){
-				if(newEntry != null){
-					alertRepository.save(new Alert(station, newEntry.timestamp, "Primeiro alerta"));
-				}
-				return;
+			StationEntry prediction = repository.findFirstByStationOrderByTimestampDesc(station);
+			if(lastAlert.timestamp == prediction.timestamp){
+				return; // nothing new
 			}
 
-			StationEntry lastEntry = repository.findFirstByStationAndTimestamp(station, lastAlert.timestamp);
-
-			StationEntry lastEntryWithMeasurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+			prediction.fillStatus();
 			
-			if(lastAlert.timestamp < newEntry.timestamp){
-				
-				newEntry.fillStatus();
-				lastEntry.fillStatus();
-				lastEntryWithMeasurement.fillStatus();
-				
-				RiverStatus newPredictedStatus = newEntry.predictedStatus;
-				RiverStatus lastAlarmPredictedStatus = lastEntry.predictedStatus;
-				RiverStatus currentMeasuredStatus = lastEntryWithMeasurement.measuredStatus;
-				RiverStatus currentPredictedStatus = lastEntryWithMeasurement.predictedStatus;
-				if(!newPredictedStatus.equals(lastAlarmPredictedStatus) &&
-						!RiverStatus.INDISPONIVEL.equals(newPredictedStatus) &&
-						!newPredictedStatus.equals(currentMeasuredStatus)){
-					
-					if(lastAlarmPredictedStatus.equals(currentMeasuredStatus)){
-						alertRepository.save(new Alert(station, newEntry.timestamp, String.format(d, 
-								station.riverName, 
-								station.name, 
-								newPredictedStatus, 
-								12,
-								1.0*lastEntryWithMeasurement.measured/100, 
-								1.0*newEntry.predicted/100
-								)));
-					}else{
-						alertRepository.save(new Alert(station, newEntry.timestamp, String.format(h, 
-								station.riverName, 
-								station.name, 
-								newPredictedStatus, 
-								12,
-								1.0*lastEntryWithMeasurement.measured/100, 
-								1.0*newEntry.predicted/100
-								)));
-					}
-				}
-				
-				StationEntry beforeLastEntryWithMeasurement = repository.findFirstByStationAndTimestamp(station, lastEntryWithMeasurement.timestamp - 900);
-				RiverStatus pastEntryPredictedStatus = beforeLastEntryWithMeasurement.predictedStatus;
-				RiverStatus pastEntryMeasuredStatus = beforeLastEntryWithMeasurement.measuredStatus;
-				
-				if(currentPredictedStatus.equals(pastEntryPredictedStatus)){
-					if(currentMeasuredStatus.equals(pastEntryMeasuredStatus)){
-						if(!RiverStatus.INDISPONIVEL.equals(currentMeasuredStatus)){
-							alertRepository.save(new Alert(station, newEntry.timestamp, String.format(f, 
-									station.riverName, 
-									station.name, 
-									currentMeasuredStatus, 
-									1.0*lastEntryWithMeasurement.measured/100, 
-									1.0*newEntry.predicted/100,
-									12
-									)));
-						}
-					}else{
-						if(!RiverStatus.INDISPONIVEL.equals(currentMeasuredStatus) && !RiverStatus.INDISPONIVEL.equals(pastEntryMeasuredStatus)){
-							alertRepository.save(new Alert(station, newEntry.timestamp, String.format(c, 
-									station.riverName, 
-									station.name, 
-									currentMeasuredStatus, 
-									1.0*lastEntryWithMeasurement.measured/100, 
-									1.0*newEntry.predicted/100,
-									12
-									)));
-						}else{
-							if(RiverStatus.INDISPONIVEL.equals(currentMeasuredStatus)){
-								alertRepository.save(new Alert(station, newEntry.timestamp, String.format(i, 
-										station.riverName, 
-										station.name, 
-										currentMeasuredStatus, 
-										1.0*lastEntryWithMeasurement.measured/100, 
-										1.0*newEntry.predicted/100,
-										12
-										)));
-							}else{
-								
-							}
-						}
-					}
-				}
-				
-				if(!lastAlarmPredictedStatus.equals(pastEntryPredictedStatus)){
-					if(lastEntryWithMeasurement.predictedStatus.equals(currentMeasuredStatus)){
-					}else{
-						if(RiverStatus.INDISPONIVEL.equals(currentMeasuredStatus)){
-							alertRepository.save(new Alert(station, newEntry.timestamp, String.format(i, 
-									station.riverName, 
-									station.name, 
-									currentMeasuredStatus, 
-									1.0*lastEntryWithMeasurement.measured/100, 
-									1.0*newEntry.predicted/100,
-									12
-									)));
-						}
-					}
-				}
+			StationEntry measurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+			measurement.fillStatus();
+
+			String message = buildAlertMessage(measurement, prediction);
+			
+			List<StationEntry> lastTwoMeasurements = repository.findFirst2ByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+			
+			StationEntry lastAlertPrediction = repository.findFirstByStationAndTimestamp(station, lastAlert.timestamp);
+
+			if(measuredStatusChanged(lastTwoMeasurements.get(1), lastTwoMeasurements.get(0)) ||
+					predictionStatusChanged(prediction, lastAlertPrediction, measurement.measuredStatus)
+					){
+				alertRepository.save(new Alert(station, prediction.timestamp, message));
 			}
 		}
+	}
+
+	private boolean predictionStatusChanged(StationEntry prediction, StationEntry previousPrediction,
+			RiverStatus currentStatus) {
+		return !prediction.hasSamePredictedStatus(previousPrediction) && !prediction.predictedStatus.equals(currentStatus);
+	}
+
+	private boolean measuredStatusChanged(StationEntry firstEntry, StationEntry secondEntry) {
+		return !firstEntry.hasSameMeasuredStatus(secondEntry);
+	}
+
+	private String buildAlertMessage(StationEntry measurement, StationEntry prediction) {
+		StringBuilder message = new StringBuilder();
+		
+		if(RiverStatus.INDISPONIVEL.equals(measurement.measuredStatus)){
+			message.append("Não há dados disponíveis no momento.");
+		}else{
+			message.append(String.format("Atualmente, o Rio %s em %s está em estado %s com nível de %.2f metros, ",
+					measurement.station.riverName, measurement.station.cityName, measurement.measuredStatus,
+					measurement.measured / 100));
+			
+			if(measurement.measuredStatus.equals(measurement.predictedStatus)){
+				message.append("conforme previsto.");
+			}else{
+				message.append(String.format("contrariando a previsão de que entraria em estado %s.", measurement.predictedStatus));
+			}
+		}
+		
+		message.append(' ');
+		
+		if(RiverStatus.INDISPONIVEL.equals(prediction.predictedStatus)){
+			message.append("Não há dados suficientes para fazer previsões.");
+		}else{
+			message.append(String.format("Há previsão para atingir %.2f metros em %d horas.",
+					prediction.predicted / 100, prediction.station.predictionWindow));
+
+			if(!measurement.predictedStatus.equals(prediction.predictedStatus)){
+				message.append(String.format(" Caso se concretize, o rio entrará em estado %s.", prediction.predictedStatus));
+			}
+		}
+		
+		return message.toString();
 	}
 
 	protected abstract StationEntry predict(long timestamp, Map<Long, Station> stationMap);

@@ -101,4 +101,12 @@ public class StationService {
 	public Iterable<Summary> saveHistory(Iterable<Summary> history) {
 		return summaryRepo.save(history);
 	}
+
+	public boolean containsAlerts(Station station) {
+		return alertRepo.countByStation(station) != 0;
+	}
+
+	public void initAlerts(Station station) {
+		alertRepo.save(new Alert(station, 0L, "Serviço indisponível."));
+	}
 }
