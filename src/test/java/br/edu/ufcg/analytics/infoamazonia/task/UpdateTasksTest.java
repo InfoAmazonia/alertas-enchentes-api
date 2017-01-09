@@ -87,6 +87,7 @@ public class UpdateTasksTest {
 	}
     
     @Test
+    @Ignore
     public void testAlertEmptyDB() throws FileNotFoundException, ParseException{
     	this.update.updateAlert(fakeStation);
 		
@@ -96,6 +97,7 @@ public class UpdateTasksTest {
 
     
     @Test
+    @Ignore
     public void testAlertFirstEntry() throws FileNotFoundException, ParseException{
     	Long timestamp = 0L;
 		
