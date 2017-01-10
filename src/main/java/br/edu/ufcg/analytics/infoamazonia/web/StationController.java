@@ -60,4 +60,14 @@ public class StationController {
 		return new ResponseEntity<>(new Alert(station, (long)(300 * Math.floor(System.currentTimeMillis()/300000)), "Alerta fake para estação de id=" + id + "!!!!!"), HttpStatus.OK);
 //		return new ResponseEntity<>(service.getLatestAlert(id), HttpStatus.OK);
 	}
+
+	@RequestMapping("/{id}/now")
+	public ResponseEntity<Alert> getCurrentStatus(@PathVariable Long id) {
+
+		if (!service.exists(id)) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		return new ResponseEntity<>(service.getCurrentStatus(id), HttpStatus.OK);
+	}
 }

@@ -199,7 +199,7 @@ public abstract class UpdateTasks {
 			StationEntry measurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 			measurement.fillStatus();
 
-			String message = buildAlertMessage(measurement, prediction);
+			String message = StationEntry.buildAlertMessage(measurement, prediction);
 			
 			List<StationEntry> lastTwoMeasurements = repository.findFirst2ByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 			
@@ -220,39 +220,6 @@ public abstract class UpdateTasks {
 
 	private boolean measuredStatusChanged(StationEntry firstEntry, StationEntry secondEntry) {
 		return !firstEntry.hasSameMeasuredStatus(secondEntry);
-	}
-
-	private String buildAlertMessage(StationEntry measurement, StationEntry prediction) {
-		StringBuilder message = new StringBuilder();
-		
-		if(RiverStatus.INDISPONIVEL.equals(measurement.measuredStatus)){
-			message.append("Não há dados disponíveis no momento.");
-		}else{
-			message.append(String.format("Atualmente, o Rio %s em %s está em estado %s com nível de %.2f metros, ",
-					measurement.station.riverName, measurement.station.cityName, measurement.measuredStatus,
-					measurement.measured / 100));
-			
-			if(measurement.measuredStatus.equals(measurement.predictedStatus)){
-				message.append("conforme previsto.");
-			}else{
-				message.append(String.format("contrariando a previsão de que entraria em estado %s.", measurement.predictedStatus));
-			}
-		}
-		
-		message.append(' ');
-		
-		if(RiverStatus.INDISPONIVEL.equals(prediction.predictedStatus)){
-			message.append("Não há dados suficientes para fazer previsões.");
-		}else{
-			message.append(String.format("Há previsão para atingir %.2f metros em %d horas.",
-					prediction.predicted / 100, prediction.station.predictionWindow));
-
-			if(!measurement.predictedStatus.equals(prediction.predictedStatus)){
-				message.append(String.format(" Caso se concretize, o rio entrará em estado %s.", prediction.predictedStatus));
-			}
-		}
-		
-		return message.toString();
 	}
 
 	protected abstract StationEntry predict(long timestamp, Map<Long, Station> stationMap);

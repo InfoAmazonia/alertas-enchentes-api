@@ -109,4 +109,20 @@ public class StationService {
 	public void initAlerts(Station station) {
 		alertRepo.save(new Alert(station, 0L, "Serviço indisponível."));
 	}
+
+	public Alert getCurrentStatus(Long stationID) {
+		Station station = stationRepo.findOne(stationID);
+		StationEntry measurement = stationEntryRepo.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station );
+		StationEntry prediction = stationEntryRepo.findFirstByStationOrderByTimestampDesc(station);
+		
+		long timestamp = (long)(300 * Math.floor(System.currentTimeMillis()/300000));
+		if(measurement == null || prediction == null){
+			return new Alert(station, timestamp, "Não foi possível consultar o estado corrente do " + station.riverName + ". Tente novamente em alguns minutos!");
+		}
+		
+		measurement.fillStatus();
+		prediction.fillStatus();
+		
+		return new Alert(station, timestamp, StationEntry.buildAlertMessage(measurement, prediction));
+	}
 }
