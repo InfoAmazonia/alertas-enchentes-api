@@ -9,8 +9,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
-import org.springframework.aop.support.IntroductionInfoSupport;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
@@ -140,7 +138,7 @@ public class StationEntry implements Serializable {
 		if(RiverStatus.INDISPONIVEL.equals(measurement.measuredStatus)){
 			message.append("Não há dados disponíveis no momento.");
 		}else{
-			message.append(String.format("Atualmente, o Rio %s em %s está em estado %s com nível de %.2f metros, ",
+			message.append(String.format("Atualmente, o %s em %s está em estado %s com nível de %.2f metros, ",
 					measurement.station.riverName, measurement.station.cityName, measurement.measuredStatus,
 					measurement.measured / 100.0));
 			
