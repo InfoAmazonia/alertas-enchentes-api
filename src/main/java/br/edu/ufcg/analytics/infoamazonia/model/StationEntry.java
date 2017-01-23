@@ -152,7 +152,7 @@ public class StationEntry implements Serializable {
 		message.append(' ');
 		
 		if(RiverStatus.INDISPONIVEL.equals(prediction.predictedStatus)){
-			message.append("No entanto, não há dados suficientes para fazer previsões no momento.");
+			message.append("Além disso, não há dados suficientes para fazer previsões no momento.");
 		}else{
 			message.append(String.format("Há previsão para atingir %.2f metros em %d horas.",
 					prediction.predicted / 100.0, prediction.station.predictionWindow));

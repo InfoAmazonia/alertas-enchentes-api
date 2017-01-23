@@ -78,7 +78,7 @@ public class StationService {
 		StationEntry lastMeasurement = stationEntryRepo
 				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		
-		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampBetween(station, timestamp,
+		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampBetween(station, timestamp - station.predictionWindow * HOUR_IN_SECONDS,
 				timestamp + station.predictionWindow * HOUR_IN_SECONDS);
 
 		for (StationEntry alert : alerts) {
@@ -88,7 +88,6 @@ public class StationService {
 		return new Result<StationEntry>(station, alerts, lastMeasurement);
 	}
 
-	
 	public Station save(Station station) {
 		return stationRepo.save(station);
 	}
