@@ -40,29 +40,6 @@ public class Station implements Serializable{
 	
 	public Long predictionWindow;
 	
-	public Station() {
-		
-	}
-	
-	public Station(long id, String name, String riverName, String cityName, long warningThreshold, long floodThreshold, String oldestMeasureDate, Boolean predict, Long lstStation, String viewState, int bacia, int subbacia, Long attentionThreshold, String timezone, Long predictionWindow) {
-		this();
-		this.name = name;
-		this.id = id;
-		this.riverName = riverName;
-		this.cityName = cityName;
-		this.attentionThreshold = warningThreshold;
-		this.warningThreshold = attentionThreshold;
-		this.floodThreshold = floodThreshold;
-		this.oldestMeasureDate = oldestMeasureDate;
-		this.predict = predict;
-		this.lstStation = lstStation;
-		this.viewState = viewState;
-		this.bacia = bacia;
-		this.subbacia = subbacia;
-		this.timezone = timezone;
-		this.predictionWindow = predictionWindow;
-	}
-
 	public RiverStatus calculateStatus(Long quota) {
 		return RiverStatus.get(quota, attentionThreshold, warningThreshold, floodThreshold);
 	}
