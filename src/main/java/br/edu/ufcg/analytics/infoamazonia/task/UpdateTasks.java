@@ -65,21 +65,6 @@ public abstract class UpdateTasks {
 	@Autowired
 	protected AlertRepository alertRepository;
 
-	@Value("${infoamazonia.alert.scenario.c}")
-	protected String c;
-
-	@Value("${infoamazonia.alert.scenario.d}")
-	protected String d;
-
-	@Value("${infoamazonia.alert.scenario.f}")
-	protected String f;
-
-	@Value("${infoamazonia.alert.scenario.h}")
-	protected String h;
-
-	@Value("${infoamazonia.alert.scenario.i}")
-	protected String i;
-
 	protected DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss").withZone(ZoneId.systemDefault());
 	protected DateTimeFormatter summaryFormatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
 	protected List<Long> dependencies;

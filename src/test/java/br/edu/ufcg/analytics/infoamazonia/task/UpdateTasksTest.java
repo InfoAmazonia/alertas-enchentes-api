@@ -48,12 +48,6 @@ public class UpdateTasksTest {
     @Autowired
     private AlertRepository alertRepository;
     
-    @Value("${infoamazonia.alert.scenario.c}")
-    public String c;
-    
-    @Value("${infoamazonia.alert.scenario.d}")
-    public String d;
-
     private UpdateTasks update;
 	
 	private Station fakeStation;
@@ -82,8 +76,6 @@ public class UpdateTasksTest {
 		this.update.stationRepository = stationRepository;
 		this.update.summaryRepository = summaryRepository;
 		this.update.alertRepository = alertRepository;
-		this.update.c = c;
-		this.update.d = d;
 	}
     
     @Test
@@ -153,7 +145,6 @@ public class UpdateTasksTest {
 		assertNotNull(alert);
 		assertEquals(timestamp+43200, alert.timestamp.longValue());
 		assertNotNull(alert.message);
-		assertEquals(c, alert.message);
     }
 
 	private StationEntry predict(Long timestamp, Long prediction) {
