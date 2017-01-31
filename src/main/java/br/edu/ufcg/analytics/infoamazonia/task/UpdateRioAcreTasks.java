@@ -31,7 +31,7 @@ public class UpdateRioAcreTasks extends UpdateTasks {
 		super(RIOBRANCO_ID, CAPIXABA_ID, RIOROLA_ID);
 	}
 
-//	@Scheduled(initialDelay=1000, fixedRate = RATE)
+	@Scheduled(initialDelay=1000, fixedRate = RATE)
 	@Override
 	public void update() throws FileNotFoundException, ParseException {
 		logger.info("Updating Rio Acre");
