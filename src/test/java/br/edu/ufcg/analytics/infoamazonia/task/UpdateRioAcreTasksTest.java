@@ -26,6 +26,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import br.edu.ufcg.analytics.infoamazonia.StationLoader;
+import br.edu.ufcg.analytics.infoamazonia.model.Alert;
+import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
 import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntryRepository;
@@ -56,6 +58,9 @@ public class UpdateRioAcreTasksTest {
     @Autowired
     private SummaryRepository summaryRepository;
 	
+    @Autowired
+    private AlertRepository alertRepository;
+	
     private Station rioBranco;
 	private Station capixaba;
 	private Station riorola;
@@ -68,6 +73,9 @@ public class UpdateRioAcreTasksTest {
     	System.setProperty("user.timezone", "UTC");
     	Station[] stations = new StationLoader().loadFromJSON(stationFile);
 		this.stationRepository.save(Arrays.asList(stations));
+		for (Station station : stations) {
+			this.alertRepository.save(new Alert(station, 0L, "Serviço indisponível."));
+		}
 		rioBranco = stationRepository.findOne(RIOBRANCO_ID);
 		capixaba = stationRepository.findOne(CAPIXABA_ID);
 		riorola = stationRepository.findOne(RIOROLA_ID);
@@ -76,6 +84,7 @@ public class UpdateRioAcreTasksTest {
 		update.repository = stationEntryRepository;
 		update.stationRepository = stationRepository;
 		update.summaryRepository = summaryRepository;
+		update.alertRepository = alertRepository;
 	}
     
 	@Test
