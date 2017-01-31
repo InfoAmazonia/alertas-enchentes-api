@@ -65,7 +65,7 @@
 		"bacia": 1,
 		"subbacia": 15,
 		"timezone": "",
-		"predictionWindow": -1
+		"predictionWindow": 24
 	},
 	{
 		"id": 15326000,
