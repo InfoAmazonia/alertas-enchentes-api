@@ -133,6 +133,9 @@ public class StationEntry implements Serializable {
 	}
 	
 	public static String buildAlertMessage(StationEntry measurement, StationEntry prediction) {
+		measurement.fillStatus();
+		prediction.fillStatus();
+		
 		StringBuilder message = new StringBuilder();
 		
 		if(RiverStatus.INDISPONIVEL.equals(measurement.measuredStatus)){

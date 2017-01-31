@@ -167,7 +167,7 @@ public abstract class UpdateTasks {
 			}
 			last = now;
 		}
-//		updateAlert(station);
+		updateAlert(station);
 	}
 
 	protected void updateAlert(Station station) {
@@ -179,10 +179,7 @@ public abstract class UpdateTasks {
 				return; // nothing new
 			}
 
-			prediction.fillStatus();
-			
 			StationEntry measurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
-			measurement.fillStatus();
 
 			String message = StationEntry.buildAlertMessage(measurement, prediction);
 			
@@ -190,7 +187,7 @@ public abstract class UpdateTasks {
 			
 			StationEntry lastAlertPrediction = repository.findFirstByStationAndTimestamp(station, lastAlert.timestamp);
 
-			if(measuredStatusChanged(lastTwoMeasurements.get(1), lastTwoMeasurements.get(0)) ||
+			if(measuredStatusChanged(lastTwoMeasurements.get(1), lastTwoMeasurements.get(0)) || lastAlertPrediction == null ||
 					predictionStatusChanged(prediction, lastAlertPrediction, measurement.measuredStatus)
 					){
 				alertRepository.save(new Alert(station, prediction.timestamp, message));
@@ -200,10 +197,14 @@ public abstract class UpdateTasks {
 
 	private boolean predictionStatusChanged(StationEntry prediction, StationEntry previousPrediction,
 			RiverStatus currentStatus) {
+		prediction.fillStatus();
+		previousPrediction.fillStatus();
 		return !prediction.hasSamePredictedStatus(previousPrediction) && !prediction.predictedStatus.equals(currentStatus);
 	}
 
 	private boolean measuredStatusChanged(StationEntry firstEntry, StationEntry secondEntry) {
+		firstEntry.fillStatus();
+		secondEntry.fillStatus();
 		return !firstEntry.hasSameMeasuredStatus(secondEntry);
 	}
 

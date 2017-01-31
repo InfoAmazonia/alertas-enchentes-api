@@ -57,8 +57,8 @@ public class StationController {
 		
 		Station station = new Station();
 		
-		return new ResponseEntity<>(new Alert(station, (long)(300 * Math.floor(System.currentTimeMillis()/300000)), "Alerta fake para estação de id=" + id + "!!!!!"), HttpStatus.OK);
-//		return new ResponseEntity<>(service.getLatestAlert(id), HttpStatus.OK);
+//		return new ResponseEntity<>(new Alert(station, (long)(300 * Math.floor(System.currentTimeMillis()/300000)), "Alerta fake para estação de id=" + id + "!!!!!"), HttpStatus.OK);
+		return new ResponseEntity<>(service.getLatestAlert(id), HttpStatus.OK);
 	}
 
 	@RequestMapping("/{id}/now")
