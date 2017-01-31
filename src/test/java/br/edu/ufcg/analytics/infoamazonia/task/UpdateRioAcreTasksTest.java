@@ -42,7 +42,8 @@ public class UpdateRioAcreTasksTest {
 
 	private static String stationFile = "src/test/resources/stations.json";
 	private static final long RIOBRANCO_ID = 13600002L;
-	private static final long XAPURI_ID = 13551000L;
+	private static final long CAPIXABA_ID = 13568000L;
+	private static final long RIOROLA_ID = 13578000L;
 	private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss").withZone(ZoneId.systemDefault());
 
 	
@@ -56,7 +57,8 @@ public class UpdateRioAcreTasksTest {
     private SummaryRepository summaryRepository;
 	
     private Station rioBranco;
-	private Station xapuri;
+	private Station capixaba;
+	private Station riorola;
 	
 	private UpdateRioAcreTasks update;
     
@@ -67,7 +69,8 @@ public class UpdateRioAcreTasksTest {
     	Station[] stations = new StationLoader().loadFromJSON(stationFile);
 		this.stationRepository.save(Arrays.asList(stations));
 		rioBranco = stationRepository.findOne(RIOBRANCO_ID);
-		xapuri = stationRepository.findOne(XAPURI_ID);
+		capixaba = stationRepository.findOne(CAPIXABA_ID);
+		riorola = stationRepository.findOne(RIOROLA_ID);
 
 		update = new UpdateRioAcreTasks();
 		update.repository = stationEntryRepository;
@@ -81,8 +84,10 @@ public class UpdateRioAcreTasksTest {
 		
 		StationEntry latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(rioBranco);
 		assertNull("Rio Branco station should be null for empty database", latest);
-		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
-		assertNull("Xapuri station should be null for empty database", latest);
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(capixaba);
+		assertNull("Capixaba station should be null for empty database", latest);
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(riorola);
+		assertNull("Rio Rola station should be null for empty database", latest);
 
 		update.update();
 		
@@ -92,8 +97,12 @@ public class UpdateRioAcreTasksTest {
 		assertNotNull("Rio Branco station should not be null after inserting", latest);
 		assertEquals(expectedTimestamp, latest.timestamp);
 		
-		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
-		assertNotNull("Xapuri station should not be null after inserting", latest);
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(capixaba);
+		assertNotNull("Capixaba station should not be null after inserting", latest);
+		assertEquals(expectedTimestamp, latest.timestamp);
+		
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(riorola);
+		assertNotNull("Rio Rola station should not be null after inserting", latest);
 		assertEquals(expectedTimestamp, latest.timestamp);
 		
 		assertEquals(Long.valueOf(287+49), stationEntryRepository.countByStation(rioBranco));
@@ -145,11 +154,16 @@ public class UpdateRioAcreTasksTest {
 		assertThat(latest.predicted, Matchers.greaterThanOrEqualTo(0L));
 
 		
-		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
-		assertNotNull("Xapuri station should not be null after inserting", latest);
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(capixaba);
+		assertNotNull("Capixaba station should not be null after inserting", latest);
 		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
-	}
+
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(riorola);
+		assertNotNull("Rio Rola station should not be null after inserting", latest);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
+}
 	
 	@Test
 	public void testUpdateWithNullEntry() throws FileNotFoundException, ParseException {
@@ -185,8 +199,14 @@ public class UpdateRioAcreTasksTest {
 		assertNull(latest.predicted);
 
 		
-		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
-		assertNotNull("Xapuri station should not be null after inserting", latest);
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(capixaba);
+		assertNotNull("Capixaba station should not be null after inserting", latest);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
+		assertNotNull(latest.measured);
+		
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(riorola);
+		assertNotNull("Rio Rola station should not be null after inserting", latest);
 		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNotNull(latest.measured);
@@ -215,22 +235,35 @@ public class UpdateRioAcreTasksTest {
 		expectedTimestamp = ZonedDateTime.parse("04/01/201612:00:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
-		assertNotNull(latest.calculated);
-		assertNotNull(latest.predicted);
+		assertNull(latest.calculated);
+		assertNull(latest.predicted);
 		
-		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(xapuri);
-		assertNotNull("Xapuri station should not be null after inserting", latest);
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(capixaba);
+		assertNotNull("Capixaba station should not be null after inserting", latest);
 		expectedTimestamp = ZonedDateTime.parse("03/01/201623:45:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNotNull(latest.measured);
 		
-		all = stationEntryRepository.findAllByStationAndTimestampBetween(xapuri, latest.timestamp+300, latest.timestamp+1200);
+		all = stationEntryRepository.findAllByStationAndTimestampBetween(capixaba, latest.timestamp+300, latest.timestamp+1200);
 		latest = all.get(all.size()-1);
-		assertNotNull("Xapuri station should not be null after inserting", latest);
+		assertNotNull("Capixaba station should not be null after inserting", latest);
 		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
-	}
+
+		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(riorola);
+		assertNotNull("Rio Rola station should not be null after inserting", latest);
+		expectedTimestamp = ZonedDateTime.parse("03/01/201623:45:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
+		assertNotNull(latest.measured);
+		
+		all = stationEntryRepository.findAllByStationAndTimestampBetween(riorola, latest.timestamp+300, latest.timestamp+1200);
+		latest = all.get(all.size()-1);
+		assertNotNull("Rio Rola station should not be null after inserting", latest);
+		expectedTimestamp = ZonedDateTime.parse("04/01/201600:00:00", formatter).toEpochSecond();
+		assertEquals(expectedTimestamp, latest.timestamp);
+		assertNull(latest.measured);
+}
 	
 	public void testUpdateWithNullDependencyEntryForPrediction() throws FileNotFoundException, ParseException {
 		update.stationCacheDir = "src/test/resources/" + rioBranco.id + "_ok";
