@@ -33,7 +33,7 @@ public class UpdateRioMadeiraTasks extends UpdateTasks {
 		super(PORTOVELHO_ID, ABUNA_ID, MORADA_ID, GUAJARA_ID);
 	}
 
-//	@Scheduled(initialDelay=1000, fixedRate = RATE)
+	@Scheduled(initialDelay=1000, fixedRate = RATE)
 	@Override
 	public void update() throws FileNotFoundException, ParseException {
 		logger.info("Update Rio Madeira ");
@@ -53,34 +53,35 @@ public class UpdateRioMadeiraTasks extends UpdateTasks {
 		
 		long predictionWindow = portoVelho.predictionWindow * HOUR_IN_SECONDS;
 		
-		StationEntry future = new StationEntry(portoVelho, timestamp + predictionWindow);
+		StationEntry portovelhoNext = new StationEntry(portoVelho, timestamp + predictionWindow);
 		
-		StationEntry current = repository.findOne(new EntryPk(timestamp, portoVelho.id));
-		StationEntry past = repository.findOne(new EntryPk(timestamp - predictionWindow, portoVelho.id));
+		StationEntry portoVelhoNow = repository.findOne(new EntryPk(timestamp, portoVelho.id));
+		StationEntry portoVelhoPast = repository.findOne(new EntryPk(timestamp - predictionWindow, portoVelho.id));
 
-		StationEntry currentAbuna = repository.findOne(new EntryPk(timestamp, abuna.id));
-		StationEntry pastAbuna = repository.findOne(new EntryPk(timestamp - predictionWindow, abuna.id));
+		StationEntry abunaNow = repository.findOne(new EntryPk(timestamp, abuna.id));
+		StationEntry abunaPast = repository.findOne(new EntryPk(timestamp - predictionWindow, abuna.id));
 
-		StationEntry currentMorada = repository.findOne(new EntryPk(timestamp - predictionWindow, morada.id));
-		StationEntry pastMorada = repository.findOne(new EntryPk(timestamp - 2*predictionWindow, morada.id));
+		StationEntry moradaNow = repository.findOne(new EntryPk(timestamp - predictionWindow, morada.id));
+		StationEntry moradaPast = repository.findOne(new EntryPk(timestamp - 2*predictionWindow, morada.id));
 
-		StationEntry currentGuajara = repository.findOne(new EntryPk(timestamp - 2*predictionWindow, guajara.id));
-		StationEntry pastGuajara = repository.findOne(new EntryPk(timestamp - 4*predictionWindow, guajara.id));
+		StationEntry guajaraNow = repository.findOne(new EntryPk(timestamp - 2*predictionWindow, guajara.id));
+		StationEntry guajaraPast = repository.findOne(new EntryPk(timestamp - 4*predictionWindow, guajara.id));
 
-		if (!isAnyAlertNull(current, past, currentAbuna, pastAbuna, currentMorada, pastMorada, currentGuajara, pastGuajara)) {
+		if (!isAnyAlertNull(portoVelhoNow, portoVelhoPast, abunaNow, abunaPast, moradaNow, moradaPast, guajaraNow, guajaraPast)) {
 
-			long calculated  = (long) (current.measured + 
-					A_1 * (current.measured - past.measured) + 
-					A_2 * (currentAbuna.measured - pastAbuna.measured) + 
-					A_3 * (currentMorada.measured - pastMorada.measured) + 
-					A_4 * (currentGuajara.measured - pastGuajara.measured));
-			long predicted = calculated + (current.calculated == 0?0:(current.measured - current.calculated));
+			long calculated  = (long) (portoVelhoNow.measured + 
+					A_1 * (portoVelhoNow.measured - portoVelhoPast.measured) + 
+					A_2 * (abunaNow.measured - abunaPast.measured) + 
+					A_3 * (moradaNow.measured - moradaPast.measured) + 
+					A_4 * (guajaraNow.measured - guajaraPast.measured));
 
-			future.registerPrediction(calculated, predicted);
+			long predicted = Math.max(0, calculated);
+
+			portovelhoNext.registerPrediction(calculated, predicted);
 		}else{
-			future.registerPrediction(0L, 0L);
+			portovelhoNext.registerPrediction(null, null);
 		}
 		
-		return future;
+		return portovelhoNext;
 	}
 }
