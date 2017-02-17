@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.edu.ufcg.analytics.infoamazonia.model.Alert;
-import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 import br.edu.ufcg.analytics.infoamazonia.model.Summary;
 import br.edu.ufcg.analytics.infoamazonia.service.StationService;
@@ -21,7 +20,6 @@ import br.edu.ufcg.analytics.infoamazonia.service.StationService.Result;
 @RequestMapping("/station")
 public class StationController {
 
-	private static final int FIFTEEN_MINUTES = 900;
 	@Autowired
 	private StationService service;
 
@@ -33,7 +31,7 @@ public class StationController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		long queryTimestamp = timestamp == -1 ? System.currentTimeMillis() / 1000 - FIFTEEN_MINUTES : timestamp;
+		long queryTimestamp = timestamp == -1 ? System.currentTimeMillis() / 1000: timestamp;
 		
 		return new ResponseEntity<>(service.getPredictionsForStationSince(id, queryTimestamp), HttpStatus.OK);
 	}
@@ -55,9 +53,6 @@ public class StationController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
-		Station station = new Station();
-		
-//		return new ResponseEntity<>(new Alert(station, (long)(300 * Math.floor(System.currentTimeMillis()/300000)), "Alerta fake para estação de id=" + id + "!!!!!"), HttpStatus.OK);
 		return new ResponseEntity<>(service.getLatestAlert(id), HttpStatus.OK);
 	}
 

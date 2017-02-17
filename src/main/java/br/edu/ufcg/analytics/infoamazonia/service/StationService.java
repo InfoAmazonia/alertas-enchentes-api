@@ -1,7 +1,12 @@
 package br.edu.ufcg.analytics.infoamazonia.service;
 
 import java.io.Serializable;
+import java.util.AbstractMap;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,15 +43,33 @@ public class StationService {
 		public Station info;
 		public List<T> data;
 		public T last;
-
-		public Result(Station info, List<T> data, T last) {
+		public Map<String, String> params;
+		
+		public Result(Station info, List<T> data, T last, Map<String, String> params) {
 			this.info = info;
 			this.data = data;
 			this.last = last;
+			this.params = params;
 		}
 
-		public Result(Station info, List<T> data) {
-			this(info, data, null);
+		public Result(Station info, List<T> data, T last, ParamPair... pairs) {
+			this(info, data, last, Collections.unmodifiableMap(Stream.of(pairs).collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()))));
+		}
+
+		public Result(Station info, List<T> data, ParamPair... pairs) {
+			this(info, data, null, pairs);
+		}
+}
+	
+	public class ParamPair extends AbstractMap.SimpleEntry<String, String>{
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -4494679401527857792L;
+
+		public <T> ParamPair(String key, T value) {
+			super(key, value.toString());
 		}
 	}
 
@@ -62,8 +85,8 @@ public class StationService {
 		for (Summary summary : history) {
 			summary.fillStatus();
 		}
-
-		return new Result<Summary>(station, history);
+		
+		return new Result<Summary>(station, history, new ParamPair("id", id));
 	}
 
 	public Alert getLatestAlert(@PathVariable Long id) {
@@ -85,7 +108,7 @@ public class StationService {
 			alert.fillStatus();
 		}
 
-		return new Result<StationEntry>(station, alerts, lastMeasurement);
+		return new Result<StationEntry>(station, alerts, lastMeasurement, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
 	}
 
 	public Station save(Station station) {
