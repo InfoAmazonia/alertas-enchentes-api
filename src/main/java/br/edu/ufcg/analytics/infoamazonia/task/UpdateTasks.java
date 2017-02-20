@@ -166,9 +166,9 @@ public abstract class UpdateTasks {
 				populateSummary(station, last);
 			}
 			last = now;
-//			if(timestamp > 1485907200){
-//				updateAlert(station);
-//			}
+			if(timestamp > 1485907200){
+				updateAlert(station);
+			}
 		}
 	}
 
