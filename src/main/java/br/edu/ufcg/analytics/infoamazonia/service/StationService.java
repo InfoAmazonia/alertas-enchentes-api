@@ -42,24 +42,22 @@ public class StationService {
 		private static final long serialVersionUID = -1644121143775945570L;
 		public Station info;
 		public List<T> data;
-		public T last;
 		public T past;
 		public Map<String, String> params;
 		
-		public Result(Station info, List<T> data, T last, T past, Map<String, String> params) {
+		public Result(Station info, List<T> data, T past, Map<String, String> params) {
 			this.info = info;
 			this.data = data;
-			this.last = last;
 			this.past = past;
 			this.params = params;
 		}
 
-		public Result(Station info, List<T> data, T last, T past, ParamPair... pairs) {
-			this(info, data, last, past, Collections.unmodifiableMap(Stream.of(pairs).collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()))));
+		public Result(Station info, List<T> data, T past, ParamPair... pairs) {
+			this(info, data, past, Collections.unmodifiableMap(Stream.of(pairs).collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()))));
 		}
 
 		public Result(Station info, List<T> data, ParamPair... pairs) {
-			this(info, data, null, null, pairs);
+			this(info, data, null, pairs);
 		}
 }
 	
@@ -111,6 +109,9 @@ public class StationService {
 				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		
 		if(timestamp == null){
+			if(lastMeasurement == null){
+				return new Result<StationEntry>(station, null, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
+			}
 			timestamp = lastMeasurement.timestamp;
 		}else{
 			timestamp = (long) (Math.floor(timestamp/FIVE_MINUTES)*FIVE_MINUTES);
@@ -132,7 +133,7 @@ public class StationService {
 					.findFirstByStationAndMeasuredAndTimestampLessThanOrderByTimestampDesc(station, middle.measured, middle.timestamp);
 		}
 
-		return new Result<StationEntry>(station, alerts, lastMeasurement, past, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
+		return new Result<StationEntry>(station, alerts, past, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
 	}
 
 	public Station save(Station station) {
