@@ -80,6 +80,9 @@ public abstract class UpdateTasks {
 	}
 
 	public void update() throws FileNotFoundException, ParseException{
+		if(stationRepository.findOne(stationId) == null){
+			return;
+		}
 		updateDependencies();
 		long time = System.currentTimeMillis();
 		populateStation(stationId);
