@@ -141,27 +141,33 @@ public class StationEntry implements Serializable {
 		if(RiverStatus.INDISPONIVEL.equals(measurement.measuredStatus)){
 			message.append("Não há dados disponíveis no momento.");
 		}else{
-			message.append(String.format("Atualmente, o %s em %s está em estado %s com nível de %.2f metros, ",
+			message.append(String.format("Atualmente, o %s em %s está em estado %s com nível de %.2f metros",
 					measurement.station.riverName, measurement.station.cityName, measurement.measuredStatus,
 					measurement.measured / 100.0));
 			
 			if(measurement.measuredStatus.equals(measurement.predictedStatus)){
-				message.append("conforme previsto.");
+				message.append(", conforme previsto.");
 			}else if(!RiverStatus.INDISPONIVEL.equals(measurement.predictedStatus)){
-				message.append(String.format("contrariando a previsão de que entraria em estado %s.", measurement.predictedStatus));
+				message.append(String.format(", contrariando a previsão de que entraria em estado %s.", measurement.predictedStatus));
+			}else{
+				message.append('.');
 			}
 		}
 		
 		message.append(' ');
 		
 		if(RiverStatus.INDISPONIVEL.equals(prediction.predictedStatus)){
-			message.append("Além disso, não há dados suficientes para fazer previsões no momento.");
+			message.append("No entanto, não há dados suficientes para fazer previsões no momento.");
 		}else{
-			message.append(String.format("Há previsão para atingir %.2f metros em %d horas.",
+			message.append(String.format("Além disso, há previsão para atingir %.2f metros em %d horas.",
 					prediction.predicted / 100.0, prediction.station.predictionWindow));
 
 			if(!measurement.predictedStatus.equals(prediction.predictedStatus)){
-				message.append(String.format(" Caso se concretize, o rio entrará em estado %s.", prediction.predictedStatus));
+				if(measurement.measuredStatus.equals(prediction.predictedStatus)){
+					message.append(String.format(" Caso se concretize, o rio continuará em estado %s.", prediction.predictedStatus));
+				}else{
+					message.append(String.format(" Caso se concretize, o rio entrará em estado %s.", prediction.predictedStatus));
+				}
 			}
 		}
 		

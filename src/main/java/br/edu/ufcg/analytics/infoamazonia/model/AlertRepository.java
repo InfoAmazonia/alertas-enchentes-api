@@ -18,4 +18,6 @@ public interface AlertRepository extends CrudRepository<Alert, EntryPk> {
 
 	Long countByStation(Station station);
 
+	Alert findFirstByStationAndTimestampGreaterThanOrderByTimestamp(Station findOne, Long timestamp);
+
 }

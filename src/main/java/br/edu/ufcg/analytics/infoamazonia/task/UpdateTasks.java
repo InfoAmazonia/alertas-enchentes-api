@@ -166,8 +166,10 @@ public abstract class UpdateTasks {
 				populateSummary(station, last);
 			}
 			last = now;
+//			if(timestamp > 1485907200){
+//				updateAlert(station);
+//			}
 		}
-		updateAlert(station);
 	}
 
 	protected void updateAlert(Station station) {
@@ -175,7 +177,7 @@ public abstract class UpdateTasks {
 			Alert lastAlert = alertRepository.findFirstByStationOrderByTimestampDesc(station);
 
 			StationEntry prediction = repository.findFirstByStationOrderByTimestampDesc(station);
-			if(lastAlert.timestamp == prediction.timestamp){
+			if(lastAlert.timestamp == prediction.timestamp || prediction.predicted == null){
 				return; // nothing new
 			}
 

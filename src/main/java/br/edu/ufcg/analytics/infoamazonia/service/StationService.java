@@ -10,7 +10,6 @@ import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import br.edu.ufcg.analytics.infoamazonia.model.Alert;
 import br.edu.ufcg.analytics.infoamazonia.model.AlertRepository;
@@ -25,6 +24,7 @@ import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 public class StationService {
 	
 	private static final int HOUR_IN_SECONDS = 3600;
+	private static final int FIVE_MINUTES = 900;
 
 	@Autowired
 	private StationEntryRepository stationEntryRepo;
@@ -43,21 +43,23 @@ public class StationService {
 		public Station info;
 		public List<T> data;
 		public T last;
+		public T past;
 		public Map<String, String> params;
 		
-		public Result(Station info, List<T> data, T last, Map<String, String> params) {
+		public Result(Station info, List<T> data, T last, T past, Map<String, String> params) {
 			this.info = info;
 			this.data = data;
 			this.last = last;
+			this.past = past;
 			this.params = params;
 		}
 
-		public Result(Station info, List<T> data, T last, ParamPair... pairs) {
-			this(info, data, last, Collections.unmodifiableMap(Stream.of(pairs).collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()))));
+		public Result(Station info, List<T> data, T last, T past, ParamPair... pairs) {
+			this(info, data, last, past, Collections.unmodifiableMap(Stream.of(pairs).collect(Collectors.toMap(pair -> pair.getKey(), pair -> pair.getValue()))));
 		}
 
 		public Result(Station info, List<T> data, ParamPair... pairs) {
-			this(info, data, null, pairs);
+			this(info, data, null, null, pairs);
 		}
 }
 	
@@ -77,7 +79,7 @@ public class StationService {
 		return stationRepo.exists(stationId);
 	}
 
-	public Result<Summary> getHistory(@PathVariable Long id) {
+	public Result<Summary> getHistory(Long id) {
 
 		Station station = stationRepo.findOne(id);
 
@@ -89,26 +91,45 @@ public class StationService {
 		return new Result<Summary>(station, history, new ParamPair("id", id));
 	}
 
-	public Alert getLatestAlert(@PathVariable Long id) {
+	public Alert getLatestAlert(Long id) {
 
 		Alert alert = alertRepo.findFirstByStationOrderByTimestampDesc(stationRepo.findOne(id));
 		return alert;
 	}
 
+	public Alert getFirstAlertAfter(Long id, Long timestamp) {
+
+		Alert alert = alertRepo.findFirstByStationAndTimestampGreaterThanOrderByTimestamp(stationRepo.findOne(id), timestamp);
+		return alert;
+	}
+
 	public Result<StationEntry> getPredictionsForStationSince(Long id, Long timestamp) {
+		
 
 		Station station = stationRepo.findOne(id);
 		StationEntry lastMeasurement = stationEntryRepo
 				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		
+		if(timestamp == null){
+			timestamp = lastMeasurement.timestamp;
+		}else{
+			timestamp = (long) (Math.floor(timestamp/FIVE_MINUTES)*FIVE_MINUTES);
+		}
+		
+		StationEntry middle = stationEntryRepo.findFirstByStationAndTimestamp(station, timestamp);
+			
 		List<StationEntry> alerts = stationEntryRepo.findAllByStationAndTimestampBetween(station, timestamp - station.predictionWindow * HOUR_IN_SECONDS,
 				timestamp + station.predictionWindow * HOUR_IN_SECONDS);
+		
 
 		for (StationEntry alert : alerts) {
 			alert.fillStatus();
 		}
+		
+		StationEntry past = stationEntryRepo
+				.findFirstByStationAndMeasuredAndTimestampLessThanOrderByTimestampDesc(station, middle.measured, middle.timestamp);
 
-		return new Result<StationEntry>(station, alerts, lastMeasurement, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
+		return new Result<StationEntry>(station, alerts, lastMeasurement, past, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
 	}
 
 	public Station save(Station station) {

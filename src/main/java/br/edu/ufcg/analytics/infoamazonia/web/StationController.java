@@ -25,15 +25,13 @@ public class StationController {
 
 	@RequestMapping("/{id}/prediction")
 	public ResponseEntity<Result<StationEntry>> getRecomendationsFor(@PathVariable Long id,
-			@RequestParam(name = "timestamp", defaultValue = "-1") Long timestamp) {
+			@RequestParam(name = "timestamp", required=false) Long timestamp) {
 
 		if (!service.exists(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
-
-		long queryTimestamp = timestamp == -1 ? System.currentTimeMillis() / 1000: timestamp;
 		
-		return new ResponseEntity<>(service.getPredictionsForStationSince(id, queryTimestamp), HttpStatus.OK);
+		return new ResponseEntity<>(service.getPredictionsForStationSince(id, timestamp), HttpStatus.OK);
 	}
 
 	@RequestMapping("/{id}/history")
@@ -47,10 +45,14 @@ public class StationController {
 	}
 
 	@RequestMapping("/{id}/alert")
-	public ResponseEntity<Alert> getAlert(@PathVariable Long id) {
+	public ResponseEntity<Alert> getAlert(@PathVariable Long id, @RequestParam(name = "timestamp", defaultValue = "-1") Long timestamp) {
 
 		if (!service.exists(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+		
+		if(timestamp != -1){
+			return new ResponseEntity<>(service.getFirstAlertAfter(id, timestamp), HttpStatus.OK);
 		}
 		
 		return new ResponseEntity<>(service.getLatestAlert(id), HttpStatus.OK);
