@@ -110,7 +110,7 @@ public class StationService {
 		StationEntry lastMeasurement = stationEntryRepo
 				.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
 		
-		if(timestamp == null && lastMeasurement != null){
+		if(timestamp == null){
 			timestamp = lastMeasurement.timestamp;
 		}else{
 			timestamp = (long) (Math.floor(timestamp/FIVE_MINUTES)*FIVE_MINUTES);
