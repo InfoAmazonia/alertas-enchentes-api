@@ -33,7 +33,7 @@ public class UpdateRioMadeiraTasks extends UpdateTasks {
 		super(PORTOVELHO_ID, ABUNA_ID, MORADA_ID, GUAJARA_ID);
 	}
 
-	@Scheduled(initialDelay=1000, fixedRate = RATE)
+	@Scheduled(initialDelay=10000, fixedRate = RATE)
 	@Override
 	public void update() throws FileNotFoundException, ParseException {
 		logger.info("Update Rio Madeira ");

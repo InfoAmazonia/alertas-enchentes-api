@@ -126,8 +126,11 @@ public class StationService {
 			alert.fillStatus();
 		}
 		
-		StationEntry past = stationEntryRepo
-				.findFirstByStationAndMeasuredAndTimestampLessThanOrderByTimestampDesc(station, middle.measured, middle.timestamp);
+		StationEntry past = null;
+		if(middle != null){
+			past = stationEntryRepo
+					.findFirstByStationAndMeasuredAndTimestampLessThanOrderByTimestampDesc(station, middle.measured, middle.timestamp);
+		}
 
 		return new Result<StationEntry>(station, alerts, lastMeasurement, past, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
 	}
