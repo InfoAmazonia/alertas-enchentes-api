@@ -7,12 +7,19 @@ public enum RiverStatus {
 		if(data == null || thresholds == null || thresholds.length == 0){
 			return INDISPONIVEL;
 		}
+		RiverStatus result = NORMAL;
 		for (int i = 0; i < thresholds.length; i++) {
+			if(thresholds[i] == null){
+				continue;
+			}
+			
 			if(data < thresholds[i]){
-				return values()[i];
+				return result;
+			}else{
+				result = values()[i];
 			}
 		}
-		return INUNDACAO;
+		return result;
 	}
 }
 	

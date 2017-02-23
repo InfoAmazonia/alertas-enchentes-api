@@ -69,7 +69,7 @@ public class StationService {
 		private static final long serialVersionUID = -4494679401527857792L;
 
 		public <T> ParamPair(String key, T value) {
-			super(key, value.toString());
+			super(key, value == null? "null": value.toString());
 		}
 	}
 

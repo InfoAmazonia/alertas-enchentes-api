@@ -162,14 +162,17 @@ public abstract class UpdateTasks {
 				logger.debug(System.currentTimeMillis() + "> " + i);
 			}
 			if(station.predict){
-				repository.save(predict(timestamp, stationMap));
+				StationEntry prediction = predict(timestamp, stationMap);
+				if(prediction != null){
+					repository.save(prediction);
+				}
 			}
 			LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneId.of("America/Recife"));
 			if(last != null && last.getDayOfYear() != now.getDayOfYear()){
 				populateSummary(station, last);
 			}
 			last = now;
-			if(timestamp > 1485907200){
+			if(timestamp > 1485907200 && stationId != 14990000){
 				updateAlert(station);
 			}
 		}

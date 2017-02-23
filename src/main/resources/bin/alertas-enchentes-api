@@ -1,10 +1,13 @@
 #!/bin/bash
 
 COMMAND=$1
+ARGS=$2
+
+#-Xms256m -Xmx512m
 
 case $COMMAND in
 	start)
-		nohup java -jar  alertas-enchentes-api-1.0.jar &
+		nohup java $ARGS -jar  alertas-enchentes-api-1.0.jar &
 	;;
 	stop)
 		PID=$(ps aux | grep alertas-enchentes-api | grep -v grep | awk '{print $2}')
