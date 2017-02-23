@@ -16,7 +16,7 @@ public enum RiverStatus {
 			if(data < thresholds[i]){
 				return result;
 			}else{
-				result = values()[i];
+				result = values()[i+1];
 			}
 		}
 		return result;
