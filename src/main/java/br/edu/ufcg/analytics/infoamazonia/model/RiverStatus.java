@@ -3,7 +3,7 @@ package br.edu.ufcg.analytics.infoamazonia.model;
 public enum RiverStatus {
 	NORMAL, ATENCAO, ALERTA, INUNDACAO, INDISPONIVEL;
 
-	public static RiverStatus get(Long data, Long... thresholds) {
+	public static RiverStatus get(Integer data, Integer... thresholds) {
 		if(data == null || thresholds == null || thresholds.length == 0){
 			return INDISPONIVEL;
 		}

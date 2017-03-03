@@ -28,14 +28,10 @@ public class StationEntry implements Serializable {
 	public Long timestamp;
 
 	@Column
-	public Long measured;
+	public Integer measured;
 
 	@Column(nullable=true, updatable=false)
-	@JsonIgnore
-	public Long calculated;
-	
-	@Column(nullable=true, updatable=false)
-	public Long predicted;
+	public Integer predicted;
 	
 	@Transient
 	public RiverStatus measuredStatus;
@@ -53,22 +49,21 @@ public class StationEntry implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public StationEntry(Station station, Long timestamp, Long measured, Long calculated, Long predicted) {
+	public StationEntry(Station station, Long timestamp, Integer measured, Integer predicted) {
 		super();
 		this.station = station;
 		this.timestamp = timestamp;
 		this.id = new EntryPk(timestamp, station.id);
 		this.measured = measured;
-		this.calculated = calculated;
 		this.predicted = predicted;
 	}
 
-	public StationEntry(Station station, Long timestamp, Long measured) {
-		this(station, timestamp, measured, null, null);
+	public StationEntry(Station station, Long timestamp, Integer measured) {
+		this(station, timestamp, measured, null);
 	}
 	
-	public StationEntry(Station station, long timestamp) {
-		this(station, timestamp, null, null, null);
+	public StationEntry(Station station, Long timestamp) {
+		this(station, timestamp, null, null);
 	}
 
 	public EntryPk getId() {
@@ -76,13 +71,12 @@ public class StationEntry implements Serializable {
 	}
 
 
-	public void registerQuota(Long quota){
+	public void registerQuota(Integer quota){
 		this.measured = quota;
 		this.measuredStatus = this.station.calculateStatus(quota);
 	}
 
-	public void registerPrediction(Long calculated, Long predicted) {
-		this.calculated = calculated;
+	public void registerPrediction(Integer predicted) {
 		this.predicted = predicted;
 		this.predictedStatus = this.station.calculateStatus(predicted);
 	}
@@ -114,7 +108,7 @@ public class StationEntry implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Alert [id=" + id + ", measured=" + measured + ", calculated=" + calculated + ", predicted="
+		return "Alert [id=" + id + ", measured=" + measured + ", predicted="
 				+ predicted + ", measuredStatus=" + measuredStatus + ", predictedStatus=" + predictedStatus
 				+ "]";
 	}

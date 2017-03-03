@@ -78,7 +78,7 @@ public class StationLoader implements ApplicationListener<ApplicationReadyEvent>
 				while (input.hasNextLine()) {
 					String[] entry = input.nextLine().trim().split(",");
 					String timestamp = entry[0].trim().split(" +")[0];
-					Long value = "NA".equals(entry[1].trim()) ? null : Long.valueOf(entry[1].trim());
+					Integer value = "NA".equals(entry[1].trim()) ? null : Integer.valueOf(entry[1].trim());
 					history.add(new Summary(station, timestamp, value));
 				}
 			}

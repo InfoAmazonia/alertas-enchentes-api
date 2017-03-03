@@ -24,7 +24,7 @@ public interface StationEntryRepository extends CrudRepository<StationEntry, Ent
 
 	StationEntry findFirstByStationOrderByTimestampDesc(Station station);
 
-	StationEntry findFirstByStationAndMeasuredAndTimestampLessThanOrderByTimestampDesc(Station station, Long measured,
+	StationEntry findFirstByStationAndMeasuredAndTimestampLessThanOrderByTimestampDesc(Station station, Integer measured,
 			Long timestamp);
 
 }

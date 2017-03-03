@@ -63,9 +63,9 @@ public class UpdateTasksIT {
 		assertNotNull(measurements);
 		assertFalse("Should not be empty for station " + station, measurements.isEmpty());
 		
-		List<Long> data = measurements.stream().map(measurement -> measurement.quota).collect(Collectors.toList());
+		List<Integer> data = measurements.stream().map(measurement -> measurement.quota).collect(Collectors.toList());
 		
-		assertThat("Should have at least one valid data point in the last month", data, Matchers.hasItem(Matchers.notNullValue(Long.class)));
+		assertThat("Should have at least one valid data point in the last month", data, Matchers.hasItem(Matchers.notNullValue(Integer.class)));
 	}
 
 }

@@ -123,14 +123,12 @@ public class UpdateRioAcreTasksTest {
 		assertEquals(49, entries.size());
 		
 		StationEntry first = entries.remove(0);
-		assertEquals(Long.valueOf(529), first.measured);
+		assertEquals(Integer.valueOf(529), first.measured);
 		
 		for (StationEntry stationEntry : entries) {
 			assertNull(stationEntry.measured);
-			assertNotNull(stationEntry.calculated);
-			assertThat(stationEntry.calculated, Matchers.greaterThanOrEqualTo(0L));
 			assertNotNull(stationEntry.predicted);
-			assertThat(stationEntry.predicted, Matchers.greaterThanOrEqualTo(0L));
+			assertThat(stationEntry.predicted, Matchers.greaterThanOrEqualTo(0));
 		}
 	}
 	
@@ -157,10 +155,8 @@ public class UpdateRioAcreTasksTest {
 		expectedTimestamp = ZonedDateTime.parse("04/01/201612:00:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
-		assertNotNull(latest.calculated);
-		assertThat(latest.calculated, Matchers.greaterThanOrEqualTo(0L));
 		assertNotNull(latest.predicted);
-		assertThat(latest.predicted, Matchers.greaterThanOrEqualTo(0L));
+		assertThat(latest.predicted, Matchers.greaterThanOrEqualTo(0));
 
 		
 		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(capixaba);
@@ -204,7 +200,6 @@ public class UpdateRioAcreTasksTest {
 		expectedTimestamp = ZonedDateTime.parse("04/01/201612:00:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
-		assertNull(latest.calculated);
 		assertNull(latest.predicted);
 
 		
@@ -244,7 +239,6 @@ public class UpdateRioAcreTasksTest {
 		expectedTimestamp = ZonedDateTime.parse("04/01/201612:00:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
-		assertNull(latest.calculated);
 		assertNull(latest.predicted);
 		
 		latest = stationEntryRepository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(capixaba);
@@ -296,7 +290,6 @@ public class UpdateRioAcreTasksTest {
 		expectedTimestamp = ZonedDateTime.parse("05/01/201600:00:00", formatter).toEpochSecond();
 		assertEquals(expectedTimestamp, latest.timestamp);
 		assertNull(latest.measured);
-		assertNull(latest.calculated);
 		assertNull(latest.predicted);
 	}
 	

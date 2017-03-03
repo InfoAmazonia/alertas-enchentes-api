@@ -70,9 +70,9 @@ public class UpdateRioNegroTasks extends UpdateTasks {
 		
 		StationEntry prediction = new StationEntry(stationRioNegro, predictionDate.toEpochSecond(ZoneOffset.of("-3")));
 		
-		Long predicted = null;
+		Integer predicted = null;
 		
-		prediction.registerPrediction(predicted , predicted);
+		prediction.registerPrediction(predicted);
 		
 		return prediction;
 	}

@@ -56,9 +56,9 @@ public class UpdateTasksTest {
 	public void setUp() throws Exception {
     	fakeStation = new Station();
     	fakeStation.id = 1L;
-    	fakeStation.attentionThreshold = 1000L;
-    	fakeStation.warningThreshold = 1500L;
-    	fakeStation.floodThreshold = 2000L;
+    	fakeStation.attentionThreshold = 1000;
+    	fakeStation.warningThreshold = 1500;
+    	fakeStation.floodThreshold = 2000;
     	fakeStation.predict = true;
     	fakeStation.riverName = "Rio XPTO";
     	fakeStation.name = "Station";
@@ -67,7 +67,7 @@ public class UpdateTasksTest {
 		this.update = new UpdateTasks(fakeStation.id) {
 			@Override
 			protected StationEntry predict(long timestamp, Map<Long, Station> stationMap) {
-				return new StationEntry(fakeStation, timestamp, 0L);
+				return new StationEntry(fakeStation, timestamp, 0);
 			}
 		};
 		
@@ -92,11 +92,10 @@ public class UpdateTasksTest {
     public void testAlertFirstEntry() throws FileNotFoundException, ParseException{
     	Long timestamp = 0L;
 		
-    	StationEntry entry = new StationEntry(fakeStation, timestamp, 1000L);
+    	StationEntry entry = new StationEntry(fakeStation, timestamp, 1000);
 		this.stationEntryRepository.save(entry);
 		entry = new StationEntry(fakeStation, timestamp+43200);
-		entry.calculated = 1000L;
-		entry.predicted = 1000L;
+		entry.predicted = 1000;
 		this.stationEntryRepository.save(entry);
 		
     	this.update.updateAlert(fakeStation);
@@ -114,9 +113,9 @@ public class UpdateTasksTest {
 
     	Long timestamp = 0L;
 		
-    	StationEntry entry = new StationEntry(fakeStation, timestamp, 500L);
+    	StationEntry entry = new StationEntry(fakeStation, timestamp, 500);
 		this.stationEntryRepository.save(entry);
-		this.stationEntryRepository.save(predict(timestamp, 1500L));
+		this.stationEntryRepository.save(predict(timestamp, 1500));
 
 		this.update.updateAlert(fakeStation);
 
@@ -125,18 +124,18 @@ public class UpdateTasksTest {
 		assertEquals(timestamp + 43200L, alert.timestamp.longValue());
 
     	for (int i = 1; i < 48; i++) {
-    		entry = new StationEntry(fakeStation, timestamp + i*900, 500L);
+    		entry = new StationEntry(fakeStation, timestamp + i*900, 500);
     		this.stationEntryRepository.save(entry);
-    		this.stationEntryRepository.save(predict(timestamp + i*900, 1500L));
+    		this.stationEntryRepository.save(predict(timestamp + i*900, 1500));
         	
     		this.update.updateAlert(fakeStation);
 
     		assertEquals(alert, alertRepository.findFirstByStationOrderByTimestampDesc(fakeStation));
 		}
     	
-		entry = new StationEntry(fakeStation, timestamp + 43200, 1500L, 1500L, 1500L);
+		entry = new StationEntry(fakeStation, timestamp + 43200, 1500, 1500);
 		this.stationEntryRepository.save(entry);
-		this.stationEntryRepository.save(predict(timestamp + 43200, 1500L));
+		this.stationEntryRepository.save(predict(timestamp + 43200, 1500));
 		
 		this.update.updateAlert(fakeStation);
 		
@@ -146,9 +145,8 @@ public class UpdateTasksTest {
 		assertNotNull(alert.message);
     }
 
-	private StationEntry predict(Long timestamp, Long prediction) {
+	private StationEntry predict(Long timestamp, Integer prediction) {
 		StationEntry entry = new StationEntry(fakeStation, timestamp+43200);
-		entry.calculated = prediction;
 		entry.predicted = prediction;
 		return entry;
 	}
@@ -158,11 +156,11 @@ public class UpdateTasksTest {
     public void testAlertScenarioD() throws FileNotFoundException, ParseException{
     	Long timestamp = 0L;
 		
-    	StationEntry entry = new StationEntry(fakeStation, timestamp, 1000L);
+    	StationEntry entry = new StationEntry(fakeStation, timestamp, 1000);
 		this.stationEntryRepository.save(entry);
     	this.update.updateAlert(fakeStation);
 
-    	entry = new StationEntry(fakeStation, timestamp + 900, 1000L, 1500L, 1500L);
+    	entry = new StationEntry(fakeStation, timestamp + 900, 1000, 1500);
 		this.stationEntryRepository.save(entry);
     	this.update.updateAlert(fakeStation);
 		

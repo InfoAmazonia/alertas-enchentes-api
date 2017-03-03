@@ -32,15 +32,15 @@ public class Station implements Serializable{
 	public int bacia;
 	public int subbacia;
 	
-	public Long warningThreshold;
-	public Long attentionThreshold;
-	public Long floodThreshold;
+	public Integer warningThreshold;
+	public Integer attentionThreshold;
+	public Integer floodThreshold;
 	
 	public String timezone;
 	
 	public Long predictionWindow;
 	
-	public RiverStatus calculateStatus(Long quota) {
+	public RiverStatus calculateStatus(Integer quota) {
 		return RiverStatus.get(quota, attentionThreshold, warningThreshold, floodThreshold);
 	}
 

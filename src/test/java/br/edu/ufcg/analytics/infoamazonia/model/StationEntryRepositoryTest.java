@@ -47,8 +47,8 @@ public class StationEntryRepositoryTest {
 	@Test
 	public void testFindFirstByStationAndTimestamp() {
 		
-		StationEntry olderAlert = new StationEntry(station, 1000L, 2000L);
-		StationEntry newerAlert = new StationEntry(station, 1000L, 3000L);
+		StationEntry olderAlert = new StationEntry(station, 1000L, 2000);
+		StationEntry newerAlert = new StationEntry(station, 1000L, 3000);
 		alertRepository.save(olderAlert );
 		alertRepository.save(newerAlert);
 		assertEquals(1, alertRepository.count());
@@ -64,8 +64,8 @@ public class StationEntryRepositoryTest {
 	public void testFindFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc() {
 		alertRepository.save(new StationEntry(station, 1000L, null) );
 		alertRepository.save(new StationEntry(station, 2000L, null) );
-		alertRepository.save(new StationEntry(station, 3000L, 100L) );
-		StationEntry latestNotNull = new StationEntry(station, 4000L, 200L);
+		alertRepository.save(new StationEntry(station, 3000L, 100) );
+		StationEntry latestNotNull = new StationEntry(station, 4000L, 200);
 		alertRepository.save(latestNotNull );
 		alertRepository.save(new StationEntry(station, 5000L, null) );
 		assertEquals(5, alertRepository.count());
@@ -74,11 +74,11 @@ public class StationEntryRepositoryTest {
 
 	@Test
 	public void testFindAllByStationAndTimestampBetween() {
-		alertRepository.save(new StationEntry(station, 1000L, 100L) );
-		alertRepository.save(new StationEntry(station, 2000L, 200L) );
-		alertRepository.save(new StationEntry(station, 3000L, 300L) );
-		alertRepository.save(new StationEntry(station, 4000L, 400L) );
-		alertRepository.save(new StationEntry(station, 5000L, 500L) );
+		alertRepository.save(new StationEntry(station, 1000L, 100) );
+		alertRepository.save(new StationEntry(station, 2000L, 200) );
+		alertRepository.save(new StationEntry(station, 3000L, 300) );
+		alertRepository.save(new StationEntry(station, 4000L, 400) );
+		alertRepository.save(new StationEntry(station, 5000L, 500) );
 		assertEquals(1, alertRepository.findAllByStationAndTimestampBetween(station, 1000L, 1000L).size());
 		assertEquals(1, alertRepository.findAllByStationAndTimestampBetween(station, 999L, 1000L).size());
 		assertEquals(1, alertRepository.findAllByStationAndTimestampBetween(station, 1000L, 1001L).size());
@@ -93,9 +93,9 @@ public class StationEntryRepositoryTest {
 
 	@Test
 	public void testCountAlertsByStation() {
-		alertRepository.save(new StationEntry(station, 1000L, 100L) );
-		alertRepository.save(new StationEntry(station, 1000L, 200L) );
-		alertRepository.save(new StationEntry(station, 1000L, 300L) );
+		alertRepository.save(new StationEntry(station, 1000L, 100) );
+		alertRepository.save(new StationEntry(station, 1000L, 200) );
+		alertRepository.save(new StationEntry(station, 1000L, 300) );
 		assertEquals((Long)1L, alertRepository.countByStation(station));
 	}
 

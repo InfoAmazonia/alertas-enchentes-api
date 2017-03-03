@@ -69,17 +69,17 @@ public class UpdateRioMadeiraTasks extends UpdateTasks {
 
 		if (!isAnyAlertNull(portoVelhoNow, portoVelhoPast, abunaNow, abunaPast, moradaNow, moradaPast, guajaraNow, guajaraPast)) {
 
-			long calculated  = (long) (portoVelhoNow.measured + 
+			int predicted  = (int) (portoVelhoNow.measured + 
 					A_1 * (portoVelhoNow.measured - portoVelhoPast.measured) + 
 					A_2 * (abunaNow.measured - abunaPast.measured) + 
 					A_3 * (moradaNow.measured - moradaPast.measured) + 
 					A_4 * (guajaraNow.measured - guajaraPast.measured));
 
-			long predicted = Math.max(0, calculated);
+			predicted = Math.max(0, predicted);
 
-			portovelhoNext.registerPrediction(calculated, predicted);
+			portovelhoNext.registerPrediction(predicted);
 		}else{
-			portovelhoNext.registerPrediction(null, null);
+			portovelhoNext.registerPrediction(null);
 		}
 		
 		return portovelhoNext;

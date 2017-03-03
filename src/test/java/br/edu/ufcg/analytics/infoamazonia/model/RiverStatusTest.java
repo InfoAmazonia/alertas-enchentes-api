@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class RiverStatusTest {
 
-	private Long thresholds[] = {1000L, 1500L, 2000L};
+	private Integer thresholds[] = {1000, 1500, 2000};
 
 	@Test
 	public void testGetStatusForNullData() {
@@ -15,18 +15,18 @@ public class RiverStatusTest {
 
 	@Test
 	public void testGetStatusForNullThresholds() {
-		assertEquals(RiverStatus.INDISPONIVEL, RiverStatus.get(0L));
+		assertEquals(RiverStatus.INDISPONIVEL, RiverStatus.get(0));
 	}
 
 	@Test
 	public void testGetStatus() {
-		assertEquals(RiverStatus.NORMAL, RiverStatus.get(0L, thresholds));
-		assertEquals(RiverStatus.NORMAL, RiverStatus.get(500L, thresholds));
-		assertEquals(RiverStatus.ATENCAO, RiverStatus.get(1000L, thresholds));
-		assertEquals(RiverStatus.ATENCAO, RiverStatus.get(1250L, thresholds));
-		assertEquals(RiverStatus.ALERTA, RiverStatus.get(1500L, thresholds));
-		assertEquals(RiverStatus.ALERTA, RiverStatus.get(1750L, thresholds));
-		assertEquals(RiverStatus.INUNDACAO, RiverStatus.get(2000L, thresholds));
-		assertEquals(RiverStatus.INUNDACAO, RiverStatus.get(2500L, thresholds));
+		assertEquals(RiverStatus.NORMAL, RiverStatus.get(0, thresholds));
+		assertEquals(RiverStatus.NORMAL, RiverStatus.get(500, thresholds));
+		assertEquals(RiverStatus.ATENCAO, RiverStatus.get(1000, thresholds));
+		assertEquals(RiverStatus.ATENCAO, RiverStatus.get(1250, thresholds));
+		assertEquals(RiverStatus.ALERTA, RiverStatus.get(1500, thresholds));
+		assertEquals(RiverStatus.ALERTA, RiverStatus.get(1750, thresholds));
+		assertEquals(RiverStatus.INUNDACAO, RiverStatus.get(2000, thresholds));
+		assertEquals(RiverStatus.INUNDACAO, RiverStatus.get(2500, thresholds));
 	}
 }

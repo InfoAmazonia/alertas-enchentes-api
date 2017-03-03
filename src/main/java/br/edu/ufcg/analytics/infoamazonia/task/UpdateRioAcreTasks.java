@@ -62,16 +62,16 @@ public class UpdateRioAcreTasks extends UpdateTasks {
 		StationEntry riorolaPast = repository.findOne(new EntryPk(timestamp - predictionWindow,  stationRioRola.id));
 		
 		if(!isAnyAlertNull(riobrancoNow, riobrancoPast, capixabaNow, capixabaPast, riorolaNow, riorolaPast)){
-			long calculated  = (long) (riobrancoNow.measured + 
+			int predicted  = (int) (riobrancoNow.measured + 
 					A_1 * (riobrancoNow.measured - riobrancoPast.measured) + 
 					A_2 * (capixabaNow.measured - capixabaPast.measured) + 
 					A_3 * (riorolaNow.measured - riorolaPast.measured));
 			
-			long predicted = Math.max(0, calculated);
+			predicted = Math.max(0, predicted);
 
-			riobrancoNext.registerPrediction(calculated, predicted);
+			riobrancoNext.registerPrediction(predicted);
 		}else{
-			riobrancoNext.registerPrediction(null, null);
+			riobrancoNext.registerPrediction(null);
 		}
 		return riobrancoNext;
 	}

@@ -155,7 +155,7 @@ public abstract class UpdateTasks {
 		for (Measurement measurementPair : measurements) {
 			i++;
 			Long timestamp = measurementPair.timestamp;
-			Long quota = measurementPair.quota;
+			Integer quota = measurementPair.quota;
 			repository.save(new StationEntry(station, timestamp, quota));
 
 			if(i % 1000 == 0){
@@ -275,7 +275,7 @@ public abstract class UpdateTasks {
 				ZonedDateTime now = ZonedDateTime.parse(tokens[0] + tokens[1], formatter);
 
 				Long timestamp = now.toEpochSecond();
-				Long quota = tokens.length == 3 ? Math.round(Double.valueOf(tokens[2])) : null;
+				Integer quota = tokens.length == 3 ? Math.round(Float.valueOf(tokens[2])) : null;
 				result.add(new Measurement(timestamp, quota));
 			}
 		}
@@ -287,8 +287,8 @@ public abstract class UpdateTasks {
 		LocalDateTime start = timestamp.truncatedTo(ChronoUnit.DAYS);
 		LocalDateTime end = start.plusDays(1);
 		List<StationEntry> alerts = repository.findAllByStationAndTimestampBetween(station, start.toEpochSecond(ZoneOffset.of("-3")), end.toEpochSecond(ZoneOffset.of("-3")));
-		OptionalDouble average = alerts.stream().filter(a -> a.measured != null).mapToLong(a -> a.measured).average();
-		Long averageMeasurement = average.isPresent()? Math.round(average.getAsDouble()): null;
+		OptionalDouble average = alerts.stream().filter(a -> a.measured != null).mapToInt(a -> a.measured).average();
+		Integer averageMeasurement = average.isPresent()? Math.round((float)average.getAsDouble()): null;
 		summaryRepository.save(new Summary(station, start.format(summaryFormatter), averageMeasurement));
 	}
 

@@ -1,5 +1,6 @@
 package br.edu.ufcg.analytics.infoamazonia.model;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -28,7 +29,7 @@ public class Summary implements Serializable {
 	public String timestamp;
 
 	@Column
-	public Long measured;
+	public Integer measured;
 
 	@Transient
 	public RiverStatus measuredStatus;
@@ -43,7 +44,7 @@ public class Summary implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public Summary(Station station, String timestamp, Long measured) {
+	public Summary(Station station, String timestamp, Integer measured) {
 		super();
 		this.station = station;
 		this.timestamp = timestamp;
@@ -60,7 +61,7 @@ public class Summary implements Serializable {
 	}
 
 
-	public void registerQuota(Long quota){
+	public void registerQuota(Integer quota){
 		this.measured = quota;
 		this.measuredStatus = this.station.calculateStatus(quota);
 	}
