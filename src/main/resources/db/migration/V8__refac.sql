@@ -7,3 +7,4 @@ alter table summary alter column measured int;
 alter table station alter column flood_threshold int;
 alter table station alter column attention_threshold int;
 alter table station alter column warning_threshold int; 
+alter table station add column lst_origem bigint; 

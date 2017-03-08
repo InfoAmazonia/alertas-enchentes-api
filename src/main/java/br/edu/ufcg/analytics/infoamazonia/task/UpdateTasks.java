@@ -240,7 +240,7 @@ public abstract class UpdateTasks {
 			nvps.add(new BasicNameValuePair("lstBacia", Integer.toString(station.bacia)));
 			nvps.add(new BasicNameValuePair("lstDisponivel", "2"));
 			nvps.add(new BasicNameValuePair("lstEstacao", Long.toString(station.lstStation)));
-			nvps.add(new BasicNameValuePair("lstOrigem", "5"));
+			nvps.add(new BasicNameValuePair("lstOrigem", Long.toString(station.lstOrigem)));
 			nvps.add(new BasicNameValuePair("lstSubBacia", Integer.toString(station.subbacia)));
 			nvps.add(new BasicNameValuePair("txtAnofim", Integer.toString(end.getYear())));
 			nvps.add(new BasicNameValuePair("txtAnoini", Integer.toString(start.getYear())));

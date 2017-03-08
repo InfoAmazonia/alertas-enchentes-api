@@ -25,6 +25,7 @@ public class Station implements Serializable{
 	public String oldestMeasureDate;
 	public Boolean predict;
 	public Long lstStation;
+	public Long lstOrigem;
 	
 	@Column(length=10000)
 	public String viewState;
@@ -39,6 +40,7 @@ public class Station implements Serializable{
 	public String timezone;
 	
 	public Long predictionWindow;
+
 	
 	public RiverStatus calculateStatus(Integer quota) {
 		return RiverStatus.get(quota, attentionThreshold, warningThreshold, floodThreshold);

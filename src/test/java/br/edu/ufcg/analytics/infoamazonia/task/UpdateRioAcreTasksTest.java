@@ -43,7 +43,7 @@ import br.edu.ufcg.analytics.infoamazonia.model.SummaryRepository;
 public class UpdateRioAcreTasksTest {
 
 	private static String stationFile = "src/test/resources/stations.json";
-	private static final long RIOBRANCO_ID = 13600002L;
+	private static final long RIOBRANCO_ID = 13600010L;
 	private static final long CAPIXABA_ID = 13568000L;
 	private static final long RIOROLA_ID = 13578000L;
 	private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyyHH:mm:ss").withZone(ZoneId.systemDefault());

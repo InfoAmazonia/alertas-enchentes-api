@@ -18,7 +18,7 @@ public class UpdateRioAcreTasks extends UpdateTasks {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final long RIOBRANCO_ID = 13600002L;
+	private static final long RIOBRANCO_ID = 13600010L;
 	private static final long CAPIXABA_ID = 13568000L;
 	private static final long RIOROLA_ID = 13578000L;
 	private static final long RATE = 900000;

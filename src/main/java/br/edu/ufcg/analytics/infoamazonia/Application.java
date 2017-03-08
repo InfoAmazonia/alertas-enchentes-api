@@ -1,5 +1,7 @@
 package br.edu.ufcg.analytics.infoamazonia;
 
+import java.util.Locale;
+
 import org.h2.server.web.WebServlet;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,6 +23,7 @@ public class Application {
 	}
 
 	public static void main(String args[]) {
+		Locale.setDefault(new Locale("pt", "BR"));
         SpringApplication.run(Application.class, args);
     }
 }

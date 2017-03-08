@@ -1,6 +1,5 @@
 package br.edu.ufcg.analytics.infoamazonia.model;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -99,5 +98,9 @@ public class Summary implements Serializable {
 
 	public void fillStatus() {
 		this.measuredStatus = station.calculateStatus(this.measured);
+	}
+
+	public String toCSV() {
+		return timestamp + "," + measured + "," + measuredStatus + "\n";
 	}
 }
