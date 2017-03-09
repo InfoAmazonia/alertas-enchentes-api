@@ -43,6 +43,8 @@ public class StationService {
 		public Station info;
 		public List<T> data;
 		public T past;
+		public T measurement;
+		public T prediction;
 		public Map<String, String> params;
 		
 		public Result(Station info, List<T> data, T past, Map<String, String> params) {
@@ -133,7 +135,10 @@ public class StationService {
 					.findFirstByStationAndMeasuredAndTimestampLessThanOrderByTimestampDesc(station, middle.measured, middle.timestamp);
 		}
 
-		return new Result<StationEntry>(station, alerts, past, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
+		Result<StationEntry> result = new Result<StationEntry>(station, alerts, past, new ParamPair("id", id), new ParamPair("timestamp", timestamp));
+		result.measurement = middle;
+		result.prediction = alerts.get(alerts.size()-1);
+		return result;
 	}
 
 	public Station save(Station station) {
