@@ -133,7 +133,7 @@ public class StationEntry implements Serializable {
 		StringBuilder message = new StringBuilder();
 		
 		if(RiverStatus.INDISPONIVEL.equals(measurement.measuredStatus)){
-			message.append("Não há dados disponíveis no momento.");
+			message.append("Não há dados de medição disponíveis no momento.");
 		}else{
 			message.append(String.format("Atualmente, o %s em %s está em estado %s com nível de %.2f metros",
 					measurement.station.riverName, measurement.station.cityName, measurement.measuredStatus,
@@ -151,7 +151,7 @@ public class StationEntry implements Serializable {
 		message.append(' ');
 		
 		if(RiverStatus.INDISPONIVEL.equals(prediction.predictedStatus)){
-			message.append("No entanto, não há dados suficientes para fazer previsões no momento.");
+			message.append("Além disso, não há dados suficientes para fazer previsões no momento.");
 		}else{
 			message.append(String.format("Além disso, há previsão para atingir %.2f metros em %d horas.",
 					prediction.predicted / 100.0, prediction.station.predictionWindow));

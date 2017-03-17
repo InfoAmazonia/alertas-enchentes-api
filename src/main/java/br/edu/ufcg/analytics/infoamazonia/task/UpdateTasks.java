@@ -152,19 +152,41 @@ public abstract class UpdateTasks {
 
 		LocalDateTime last = null;
 		long i = 0;
+		
+		Alert lastAlert = alertRepository.findFirstByStationOrderByTimestampDesc(station);
+		StationEntry lastPrediction = repository.findFirstByStationAndTimestamp(station, lastAlert.timestamp);
+		StationEntry lastMeasurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
+
 		for (Measurement measurementPair : measurements) {
 			i++;
 			Long timestamp = measurementPair.timestamp;
 			Integer quota = measurementPair.quota;
-			repository.save(new StationEntry(station, timestamp, quota));
+			StationEntry newMeasurement = new StationEntry(station, timestamp, quota);
+			repository.save(newMeasurement);
 
 			if(i % 1000 == 0){
 				logger.debug(System.currentTimeMillis() + "> " + i);
 			}
 			if(station.predict){
-				StationEntry prediction = predict(timestamp, stationMap);
-				if(prediction != null){
-					repository.save(prediction);
+				StationEntry newPrediction = predict(timestamp, stationMap);
+				if(newPrediction != null){
+					repository.save(newPrediction);
+					
+					if(lastPrediction != null && newPrediction.timestamp > lastPrediction.timestamp){
+						String message = StationEntry.buildAlertMessage(newMeasurement, newPrediction);
+						if(measuredStatusChanged(lastMeasurement, newMeasurement) || 
+								predictionStatusChanged(lastPrediction, newPrediction, newMeasurement.measuredStatus)
+								){
+							Alert newAlert = new Alert(station, newPrediction.timestamp, message);
+							alertRepository.save(newAlert);
+							
+							lastAlert = newAlert;
+							lastPrediction = newPrediction;
+						}
+					}else{
+						lastPrediction = newPrediction;
+					}
+					lastMeasurement = newMeasurement;
 				}
 			}
 			LocalDateTime now = LocalDateTime.ofInstant(Instant.ofEpochSecond(timestamp), ZoneId.of("America/Recife"));
@@ -172,34 +194,6 @@ public abstract class UpdateTasks {
 				populateSummary(station, last);
 			}
 			last = now;
-			if(timestamp > 1485907200 && stationId != 14990000){
-				updateAlert(station);
-			}
-		}
-	}
-
-	protected void updateAlert(Station station) {
-		if(station.predict){
-			Alert lastAlert = alertRepository.findFirstByStationOrderByTimestampDesc(station);
-
-			StationEntry prediction = repository.findFirstByStationOrderByTimestampDesc(station);
-			if(lastAlert.timestamp == prediction.timestamp || prediction.predicted == null){
-				return; // nothing new
-			}
-
-			StationEntry measurement = repository.findFirstByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
-
-			String message = StationEntry.buildAlertMessage(measurement, prediction);
-			
-			List<StationEntry> lastTwoMeasurements = repository.findFirst2ByStationAndMeasuredIsNotNullOrderByTimestampDesc(station);
-			
-			StationEntry lastAlertPrediction = repository.findFirstByStationAndTimestamp(station, lastAlert.timestamp);
-
-			if(measuredStatusChanged(lastTwoMeasurements.get(1), lastTwoMeasurements.get(0)) || lastAlertPrediction == null ||
-					predictionStatusChanged(prediction, lastAlertPrediction, measurement.measuredStatus)
-					){
-				alertRepository.save(new Alert(station, prediction.timestamp, message));
-			}
 		}
 	}
 
