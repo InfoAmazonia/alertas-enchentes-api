@@ -136,13 +136,13 @@ public class StationEntry implements Serializable {
 			message.append("Não há dados de medição disponíveis no momento.");
 		}else{
 			message.append(String.format("Atualmente, o %s em %s está em estado %s com nível de %.2f metros",
-					measurement.station.riverName, measurement.station.cityName, measurement.measuredStatus,
+					measurement.station.riverName, measurement.station.cityName, measurement.measuredStatus.getPrintableName(),
 					measurement.measured / 100.0));
 			
 			if(measurement.measuredStatus.equals(measurement.predictedStatus)){
 				message.append(", conforme previsto.");
 			}else if(!RiverStatus.INDISPONIVEL.equals(measurement.predictedStatus)){
-				message.append(String.format(", contrariando a previsão de que entraria em estado %s.", measurement.predictedStatus));
+				message.append(String.format(", contrariando a previsão de que entraria em estado %s.", measurement.predictedStatus.getPrintableName()));
 			}else{
 				message.append('.');
 			}
@@ -158,10 +158,12 @@ public class StationEntry implements Serializable {
 
 			if(!measurement.predictedStatus.equals(prediction.predictedStatus)){
 				if(measurement.measuredStatus.equals(prediction.predictedStatus)){
-					message.append(String.format(" Caso se concretize, o rio continuará em estado %s.", prediction.predictedStatus));
+					message.append(String.format(" Caso se concretize, o rio continuará em estado %s.", prediction.predictedStatus.getPrintableName()));
 				}else{
-					message.append(String.format(" Caso se concretize, o rio entrará em estado %s.", prediction.predictedStatus));
+					message.append(String.format(" Caso se concretize, o rio entrará em estado %s.", prediction.predictedStatus.getPrintableName()));
 				}
+			}else{
+				message.append(String.format(" Caso se concretize, o rio continuará em estado %s.", prediction.predictedStatus.getPrintableName()));
 			}
 		}
 		

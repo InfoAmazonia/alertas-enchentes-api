@@ -174,8 +174,8 @@ public abstract class UpdateTasks {
 					
 					if(lastPrediction != null && newPrediction.timestamp > lastPrediction.timestamp){
 						String message = StationEntry.buildAlertMessage(newMeasurement, newPrediction);
-						if(measuredStatusChanged(lastMeasurement, newMeasurement) || 
-								predictionStatusChanged(lastPrediction, newPrediction, newMeasurement.measuredStatus)
+						if(!isStationUnavaiable(newMeasurement, newPrediction) && (measuredStatusChanged(lastMeasurement, newMeasurement) || 
+								predictionStatusChanged(lastPrediction, newPrediction, newMeasurement.measuredStatus))
 								){
 							Alert newAlert = new Alert(station, newPrediction.timestamp, message);
 							alertRepository.save(newAlert);
@@ -195,6 +195,10 @@ public abstract class UpdateTasks {
 			}
 			last = now;
 		}
+	}
+
+	private boolean isStationUnavaiable(StationEntry measurement, StationEntry prediction) {
+		return RiverStatus.INDISPONIVEL.equals(measurement.measuredStatus) && RiverStatus.INDISPONIVEL.equals(prediction.predictedStatus);
 	}
 
 	private boolean predictionStatusChanged(StationEntry prediction, StationEntry previousPrediction,
