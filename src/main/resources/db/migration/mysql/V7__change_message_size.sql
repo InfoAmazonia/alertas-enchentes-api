@@ -1,0 +1,1 @@
+alter table alert modify column message varchar(1000);
