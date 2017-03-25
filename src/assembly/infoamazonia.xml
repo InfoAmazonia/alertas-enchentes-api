@@ -30,7 +30,7 @@
 			<outputDirectory></outputDirectory>
 			<directory>src/main/resources</directory>
 			<includes>
-			<include>db</include>
+			<include>db/**</include>
 			</includes>
 		</fileSet>
 		<fileSet>

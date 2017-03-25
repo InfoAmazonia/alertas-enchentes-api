@@ -29,7 +29,7 @@ public class UpdateRioNegroTasks extends UpdateTasks {
 		super(RIONEGRO_ID);
 	}
 
-	@Scheduled(initialDelay=10000, fixedRate = RATE)
+	@Scheduled(initialDelay=30000, fixedRate = RATE)
 	@Override
 	public void update() throws FileNotFoundException, ParseException {
 		logger.info("Updating Rio Negro");

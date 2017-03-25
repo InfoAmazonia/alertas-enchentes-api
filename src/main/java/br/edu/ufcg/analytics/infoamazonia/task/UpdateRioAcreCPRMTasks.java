@@ -14,11 +14,11 @@ import br.edu.ufcg.analytics.infoamazonia.model.Station;
 import br.edu.ufcg.analytics.infoamazonia.model.StationEntry;
 
 @Component
-public class UpdateRioAcreTasks extends UpdateTasks {
+public class UpdateRioAcreCPRMTasks extends UpdateTasks {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private static final long RIOBRANCO_ID = 13600002L;
+	private static final long RIOBRANCO_ID = 13600010L;
 	private static final long CAPIXABA_ID = 13568000L;
 	private static final long RIOROLA_ID = 13578000L;
 	private static final long RATE = 900000;
@@ -27,18 +27,18 @@ public class UpdateRioAcreTasks extends UpdateTasks {
 	private static final double A_3 = 0.313;
 	
 	
-	public UpdateRioAcreTasks() {
+	public UpdateRioAcreCPRMTasks() {
 		super(RIOBRANCO_ID, CAPIXABA_ID, RIOROLA_ID);
 	}
 
 	@Scheduled(initialDelay=30000, fixedRate = RATE)
 	@Override
 	public void update() throws FileNotFoundException, ParseException {
-		logger.info("Updating Rio Acre");
+		logger.info("Updating Rio Acre (CPRM)");
 		long time = System.currentTimeMillis();
 		super.update();
 		time = System.currentTimeMillis() - time;
-		logger.info("Updated Rio Acre in " + time + " millis");
+		logger.info("Updated Rio Acre (CPRM) in " + time + " millis");
 	}
 
 	@Override
