@@ -65,7 +65,7 @@ public class UpdateRioAcreTasksTest {
 	private Station capixaba;
 	private Station riorola;
 	
-	private UpdateRioAcreTasks update;
+	private UpdateRioAcreCPRMTasks update;
     
 	
     @Before
@@ -80,7 +80,7 @@ public class UpdateRioAcreTasksTest {
 		capixaba = stationRepository.findOne(CAPIXABA_ID);
 		riorola = stationRepository.findOne(RIOROLA_ID);
 
-		update = new UpdateRioAcreTasks();
+		update = new UpdateRioAcreCPRMTasks();
 		update.repository = stationEntryRepository;
 		update.stationRepository = stationRepository;
 		update.summaryRepository = summaryRepository;

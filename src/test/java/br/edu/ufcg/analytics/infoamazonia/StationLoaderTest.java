@@ -37,7 +37,7 @@ public class StationLoaderTest {
 		Station[] stations = new StationLoader().loadFromJSON(stationFile);
 		assertNotEquals("Should have loaded stations", 0, stations.length);
 		
-		Station riobranco = stations[2];
+		Station riobranco = stations[3];
 		assertEquals(13600010, riobranco.id.longValue());
 		assertEquals("Rio Branco", riobranco.name);
 		assertEquals("Rio Acre", riobranco.riverName);
