@@ -26,42 +26,58 @@ import br.edu.ufcg.analytics.infoamazonia.service.StationService.Result;
 @RequestMapping("/station")
 public class StationController {
 
+	private static final long RIO_BRANCO_CPRM_ID = 13600010;
+	private static final long RIO_BRANCO_ID = 13600002;
+	
 	@Autowired
 	private StationService service;
 
 	@RequestMapping("/{id}/prediction")
 	public ResponseEntity<Result<StationEntry>> getRecomendationsFor(@PathVariable Long id,
-			@RequestParam(name = "timestamp", required=false) Long timestamp) {
+			@RequestParam(name = "timestamp", required=false) Long timestamp,
+			@RequestParam(name = "forcecprm", required=false, defaultValue="false") Boolean forceCPRM) {
 
 		if (!service.exists(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
-		return new ResponseEntity<>(service.getPredictionsForStationSince(id, timestamp), HttpStatus.OK);
+		Long stationId = extracted(id, forceCPRM);
+		
+		return new ResponseEntity<>(service.getPredictionsForStationSince(stationId, timestamp), HttpStatus.OK);
+	}
+
+	private Long extracted(Long id, Boolean forceCPRM) {
+		return (id.longValue() == RIO_BRANCO_CPRM_ID && ! forceCPRM)? RIO_BRANCO_ID: id;
 	}
 
 	@RequestMapping("/{id}/history")
-	public ResponseEntity<Result<Summary>> getHistory(@PathVariable Long id) {
+	public ResponseEntity<Result<Summary>> getHistory(@PathVariable Long id,
+			@RequestParam(name = "forcecprm", required=false, defaultValue="false") Boolean forceCPRM) {
 
 		if (!service.exists(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 
-		return new ResponseEntity<>(service.getHistory(id), HttpStatus.OK);
+		Long stationId = extracted(id, forceCPRM);
+
+		return new ResponseEntity<>(service.getHistory(stationId), HttpStatus.OK);
 	}
 
 	@RequestMapping(value="/{id}/csvhistory", method=RequestMethod.GET)
-	public void getHistoryInCSV(@PathVariable Long id, HttpServletResponse response) throws IOException {
+	public void getHistoryInCSV(@PathVariable Long id, HttpServletResponse response,
+			@RequestParam(name = "forcecprm", required=false, defaultValue="false") Boolean forceCPRM) throws IOException {
 
 		if (!service.exists(id)) {
 			return;
 		}
 
-		response.addHeader("Content-disposition", "attachment;filename=" + id + ".csv");
+		Long stationId = extracted(id, forceCPRM);
+
+		response.addHeader("Content-disposition", "attachment;filename=" + stationId + ".csv");
 		response.setContentType("txt/plain; charset=utf-8");
 		
 		PrintWriter writer = response.getWriter();
-		Result<Summary> history = service.getHistory(id);
+		Result<Summary> history = service.getHistory(stationId);
 		writer.write("\"timestamp\",\"measured\",\"measured_status\"\n");
 		for (Summary item : history.data) {
 			writer.write(item.toCSV());
@@ -72,26 +88,32 @@ public class StationController {
 	}
 
 	@RequestMapping("/{id}/alert")
-	public ResponseEntity<Alert> getAlert(@PathVariable Long id, @RequestParam(name = "timestamp", defaultValue = "-1") Long timestamp) {
+	public ResponseEntity<Alert> getAlert(@PathVariable Long id, @RequestParam(name = "timestamp", defaultValue = "-1") Long timestamp,
+			@RequestParam(name = "forcecprm", required=false, defaultValue="false") Boolean forceCPRM) {
 
 		if (!service.exists(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
+		Long stationId = extracted(id, forceCPRM);
+
 		if(timestamp != -1){
-			return new ResponseEntity<>(service.getFirstAlertAfter(id, timestamp), HttpStatus.OK);
+			return new ResponseEntity<>(service.getFirstAlertAfter(stationId, timestamp), HttpStatus.OK);
 		}
 		
-		return new ResponseEntity<>(service.getLatestAlert(id), HttpStatus.OK);
+		return new ResponseEntity<>(service.getLatestAlert(stationId), HttpStatus.OK);
 	}
 
 	@RequestMapping("/{id}/now")
-	public ResponseEntity<Alert> getCurrentStatus(@PathVariable Long id) {
+	public ResponseEntity<Alert> getCurrentStatus(@PathVariable Long id,
+			@RequestParam(name = "forcecprm", required=false, defaultValue="false") Boolean forceCPRM) {
 
 		if (!service.exists(id)) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 		
-		return new ResponseEntity<>(service.getCurrentStatus(id), HttpStatus.OK);
+		Long stationId = extracted(id, forceCPRM);
+
+		return new ResponseEntity<>(service.getCurrentStatus(stationId), HttpStatus.OK);
 	}
 }
